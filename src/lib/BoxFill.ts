@@ -1,4 +1,4 @@
-import type { Result } from './Result'
+import { wrap, type Result } from './Result'
 
 const CM_PER_INCH = 2.54
 
@@ -275,10 +275,10 @@ export function getBoxFill(boxFillArgs: BoxFillParameters): Result<BoxFill> {
 
   if (unitSystem === generalAllowance.unitSystem) {
     const roundedBoxFill = roundBoxFillToNearestTenth(boxFill)
-    return { ok: true, value: roundedBoxFill }
+    return wrap(roundedBoxFill)
   } else {
     const convertedBoxFill = switchUnitSystem(boxFill)
     const roundedBoxFill = roundBoxFillToNearestTenth(convertedBoxFill)
-    return { ok: true, value: roundedBoxFill }
+    return wrap(roundedBoxFill)
   }
 }
