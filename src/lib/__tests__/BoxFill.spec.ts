@@ -143,7 +143,7 @@ describe('CalculateBoxFill', () => {
         generalConductors: { largestAWG: AWGConductor.AWG_12, num: 3 },
         internalClampsUsed: true,
         supportFittingsUsed: 1,
-        devicesUsed: devices,
+        devicesUsed: { largestAWG: AWGConductor.AWG_12, devices },
         unitSystem: UnitSystem.Metric
       })
     )

@@ -24,12 +24,19 @@ export enum AWGConductor {
   AWG_6 = 6
 }
 
+export interface Conductor {
+  largestAWG: AWGConductor
+}
+
 export interface Device {
   numGangs: number
 }
 
-export interface Conductors {
-  largestAWG: AWGConductor
+export interface Devices extends Conductor {
+  devices: Device[]
+}
+
+export interface Conductors extends Conductor {
   num: number
 }
 
@@ -37,7 +44,7 @@ export interface BoxFillParameters {
   generalConductors: Conductors
   internalClampsUsed?: boolean
   supportFittingsUsed?: number
-  devicesUsed?: Device[]
+  devicesUsed?: Devices
   groundingConductors?: Conductors
   terminalBlocks?: Conductors
   unitSystem: UnitSystem
@@ -48,7 +55,7 @@ function roundBoxFillToNearestTenth(boxFill: BoxFill): BoxFill {
   return { ...boxFill, value: roundedValue }
 }
 
-function getAllowance(conductor: Conductors): Allowance {
+function getAllowance(conductor: Conductor): Allowance {
   switch (conductor.largestAWG) {
     case AWGConductor.AWG_18:
       return { unitSystem: UnitSystem.Metric, value: 24.6 }
@@ -158,16 +165,20 @@ function getDeviceFill(allowance: Allowance, device: Device): Allowance {
  * @param devices An array of devices to include in the box fill calculation
  * @returns An Allowance representing the sums of the allowances for all devices included.
  */
-function getDevicesFillTotal(allowance: Allowance, devices?: Device[]): Allowance {
+function getDevicesFillTotal(devices?: Devices): Allowance {
   if (devices === undefined) {
     return {
-      unitSystem: allowance.unitSystem,
+      unitSystem: UnitSystem.Metric,
       value: 0
     }
   } else {
+    const allowance = getAllowance(devices)
     return {
       unitSystem: allowance.unitSystem,
-      value: devices.reduce((acc, device) => acc + getDeviceFill(allowance, device).value, 0)
+      value: devices.devices.reduce(
+        (acc, device) => acc + getDeviceFill(allowance, device).value,
+        0
+      )
     }
   }
 }
@@ -240,7 +251,7 @@ export function getBoxFill(boxFillArgs: BoxFillParameters): Result<BoxFill> {
   const conductorFill = getConductorFill(generalAllowance, generalConductors.num)
   const clampFill = getClampFill(generalAllowance, internalClampsUsed)
   const supportFittingsFill = getSupportFittingFill(generalAllowance, supportFittingsUsed)
-  const deviceFill = getDevicesFillTotal(generalAllowance, devicesUsed)
+  const deviceFill = getDevicesFillTotal(devicesUsed)
   const groundingConductorFill = getGroundingConductorFill(groundingConductors)
   const terminalBlockFill = getTerminalBlockFill(terminalBlocks)
 
