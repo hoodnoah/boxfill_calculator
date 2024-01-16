@@ -69,7 +69,7 @@ describe('CalculateBoxFill', () => {
     const actualResult = unwrapOrThrow(
       getBoxFill({
         generalConductors: { largestAWG: AWGConductor.AWG_6, num: 2 },
-        internalClampsUsed: true,
+        internalClamps: { largestAWG: AWGConductor.AWG_6 },
         unitSystem: UnitSystem.Metric
       })
     )
@@ -82,7 +82,7 @@ describe('CalculateBoxFill', () => {
     const actualResult = unwrapOrThrow(
       getBoxFill({
         generalConductors: { largestAWG: AWGConductor.AWG_6, num: 2 },
-        internalClampsUsed: true,
+        internalClamps: { largestAWG: AWGConductor.AWG_6 },
         unitSystem: UnitSystem.Imperial
       })
     )
@@ -100,7 +100,7 @@ describe('CalculateBoxFill', () => {
     const actualResult = unwrapOrThrow(
       getBoxFill({
         generalConductors: { largestAWG: AWGConductor.AWG_18, num: 14 },
-        supportFittingsUsed: 3,
+        supportFittings: { largestAWG: AWGConductor.AWG_18, num: 3 },
         unitSystem: UnitSystem.Metric
       })
     )
@@ -118,7 +118,7 @@ describe('CalculateBoxFill', () => {
     const actualResult = unwrapOrThrow(
       getBoxFill({
         generalConductors: { largestAWG: AWGConductor.AWG_18, num: 14 },
-        supportFittingsUsed: 3,
+        supportFittings: { largestAWG: AWGConductor.AWG_18, num: 3 },
         unitSystem: UnitSystem.Imperial
       })
     )
@@ -141,8 +141,8 @@ describe('CalculateBoxFill', () => {
     const actualResult = unwrapOrThrow(
       getBoxFill({
         generalConductors: { largestAWG: AWGConductor.AWG_12, num: 3 },
-        internalClampsUsed: true,
-        supportFittingsUsed: 1,
+        internalClamps: { largestAWG: AWGConductor.AWG_12 },
+        supportFittings: { largestAWG: AWGConductor.AWG_12, num: 1 },
         devicesUsed: { largestAWG: AWGConductor.AWG_12, devices },
         unitSystem: UnitSystem.Metric
       })

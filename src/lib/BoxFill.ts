@@ -40,10 +40,14 @@ export interface Conductors extends Conductor {
   num: number
 }
 
+export interface SupportFittings extends Conductor {
+  num: number
+}
+
 export interface BoxFillParameters {
   generalConductors: Conductors
-  internalClampsUsed?: boolean
-  supportFittingsUsed?: number
+  internalClamps?: Conductor
+  supportFittings?: SupportFittings
   devicesUsed?: Devices
   groundingConductors?: Conductors
   terminalBlocks?: Conductors
@@ -98,10 +102,11 @@ function switchUnitSystem(allowance: Allowance): Allowance {
  * @param numConductors The number of conductors in the box (does not include grounds)
  * @returns The conductor fill in cubic centimeters.
  */
-function getConductorFill(allowance: Allowance, numConductors: number): Allowance {
+function getConductorFill(generalConductors: Conductors): Allowance {
+  const allowance = getAllowance(generalConductors)
   return {
     unitSystem: allowance.unitSystem,
-    value: allowance.value * numConductors
+    value: allowance.value * generalConductors.num
   }
 }
 
@@ -112,17 +117,18 @@ function getConductorFill(allowance: Allowance, numConductors: number): Allowanc
  * @param clampsIncluded Whether or not internal clamps are being used
  * @returns A result containing the clamp fill, which is calculated as a single allowance if clamps are included, or 0 if they aren't.
  */
-function getClampFill(allowance: Allowance, internalClampsUsed?: boolean): Allowance {
-  if (internalClampsUsed === true) {
+function getClampFill(internalClampsUsed?: Conductor): Allowance {
+  if (internalClampsUsed === undefined) {
     return {
-      unitSystem: allowance.unitSystem,
-      value: allowance.value
-    }
-  } else {
-    return {
-      unitSystem: allowance.unitSystem,
+      unitSystem: UnitSystem.Metric,
       value: 0
     }
+  }
+
+  const allowance = getAllowance(internalClampsUsed)
+  return {
+    unitSystem: allowance.unitSystem,
+    value: allowance.value
   }
 }
 
@@ -132,16 +138,17 @@ function getClampFill(allowance: Allowance, internalClampsUsed?: boolean): Allow
  * @param supportFittingsUsed The number of support fittings used.
  * @returns A result containing the support fitting fill, which is calculated as the allowance times the number of support fittings used.
  */
-function getSupportFittingFill(allowance: Allowance, supportFittingsUsed?: number): Allowance {
-  if (supportFittingsUsed === undefined) {
+function getSupportFittingFill(supportFittings?: SupportFittings): Allowance {
+  if (supportFittings === undefined) {
     return {
-      unitSystem: allowance.unitSystem,
+      unitSystem: UnitSystem.Metric,
       value: 0
     }
   } else {
+    const allowance = getAllowance(supportFittings)
     return {
       unitSystem: allowance.unitSystem,
-      value: allowance.value * supportFittingsUsed
+      value: allowance.value * supportFittings.num
     }
   }
 }
@@ -238,8 +245,8 @@ function getTerminalBlockFill(terminalBlockFill?: Conductors): Allowance {
 export function getBoxFill(boxFillArgs: BoxFillParameters): Result<BoxFill> {
   const {
     generalConductors,
-    internalClampsUsed,
-    supportFittingsUsed,
+    internalClamps,
+    supportFittings,
     devicesUsed,
     groundingConductors,
     terminalBlocks,
@@ -248,9 +255,9 @@ export function getBoxFill(boxFillArgs: BoxFillParameters): Result<BoxFill> {
 
   const generalAllowance = getAllowance(generalConductors)
 
-  const conductorFill = getConductorFill(generalAllowance, generalConductors.num)
-  const clampFill = getClampFill(generalAllowance, internalClampsUsed)
-  const supportFittingsFill = getSupportFittingFill(generalAllowance, supportFittingsUsed)
+  const conductorFill = getConductorFill(generalConductors)
+  const clampFill = getClampFill(internalClamps)
+  const supportFittingsFill = getSupportFittingFill(supportFittings)
   const deviceFill = getDevicesFillTotal(devicesUsed)
   const groundingConductorFill = getGroundingConductorFill(groundingConductors)
   const terminalBlockFill = getTerminalBlockFill(terminalBlocks)
