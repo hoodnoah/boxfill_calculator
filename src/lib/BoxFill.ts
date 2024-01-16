@@ -1,4 +1,3 @@
-import { wrap, wrapError, unwrapOrThrow } from './Result'
 import type { Result } from './Result'
 
 const CM_PER_INCH = 2.54
@@ -25,27 +24,56 @@ export enum AWGConductor {
   AWG_6 = 6
 }
 
-function getAllowance(conductor: AWGConductor): Result<Allowance> {
-  switch (conductor) {
+export interface Device {
+  numGangs: number
+}
+
+export interface Conductors {
+  largestAWG: AWGConductor
+  num: number
+}
+
+export interface BoxFillParameters {
+  generalConductors: Conductors
+  internalClampsUsed?: boolean
+  supportFittingsUsed?: number
+  devicesUsed?: Device[]
+  groundingConductors?: Conductors
+  terminalBlocks?: Conductors
+  unitSystem: UnitSystem
+}
+
+function roundBoxFillToNearestTenth(boxFill: BoxFill): BoxFill {
+  const roundedValue = Math.round(boxFill.value * 10) / 10
+  return { ...boxFill, value: roundedValue }
+}
+
+function getAllowance(conductor: Conductors): Allowance {
+  switch (conductor.largestAWG) {
     case AWGConductor.AWG_18:
-      return wrap({ unitSystem: UnitSystem.Metric, value: 24.6 })
+      return { unitSystem: UnitSystem.Metric, value: 24.6 }
     case AWGConductor.AWG_16:
-      return wrap({ unitSystem: UnitSystem.Metric, value: 28.7 })
+      return { unitSystem: UnitSystem.Metric, value: 28.7 }
     case AWGConductor.AWG_14:
-      return wrap({ unitSystem: UnitSystem.Metric, value: 32.8 })
+      return { unitSystem: UnitSystem.Metric, value: 32.8 }
     case AWGConductor.AWG_12:
-      return wrap({ unitSystem: UnitSystem.Metric, value: 36.9 })
+      return { unitSystem: UnitSystem.Metric, value: 36.9 }
     case AWGConductor.AWG_10:
-      return wrap({ unitSystem: UnitSystem.Metric, value: 41.0 })
+      return { unitSystem: UnitSystem.Metric, value: 41.0 }
     case AWGConductor.AWG_8:
-      return wrap({ unitSystem: UnitSystem.Metric, value: 49.2 })
+      return { unitSystem: UnitSystem.Metric, value: 49.2 }
     case AWGConductor.AWG_6:
-      return wrap({ unitSystem: UnitSystem.Metric, value: 81.9 })
+      return { unitSystem: UnitSystem.Metric, value: 81.9 }
     default:
-      return wrapError(new Error('Invalid AWG conductor'))
+      throw new Error('Invalid conductor provided.')
   }
 }
 
+/**
+ * Switches the unit system of an allowance
+ * @param allowance The allowance to switch the unit system of
+ * @returns An allowance in metric, if provided imperial, or in imperial, if provided metric.
+ */
 function switchUnitSystem(allowance: Allowance): Allowance {
   if (allowance.unitSystem === UnitSystem.Metric) {
     const value = allowance.value / CM_PER_INCH ** 3
@@ -56,20 +84,183 @@ function switchUnitSystem(allowance: Allowance): Allowance {
   }
 }
 
-export function getBoxFill(
-  largestConductor: AWGConductor,
-  numConductors: number,
-  unitSystem: UnitSystem = UnitSystem.Metric
-): Result<BoxFill> {
-  const allowance = getAllowance(largestConductor)
-  if (!allowance.ok) {
-    return allowance
+/**
+ * Gets the conductor fill for a given number of conductors at a specific gauge,
+ * based on the largest conductor. Reference: Table 314.16(B)(1)
+ * @param allowance The allowance, from table 314.16(B)(1)
+ * @param numConductors The number of conductors in the box (does not include grounds)
+ * @returns The conductor fill in cubic centimeters.
+ */
+function getConductorFill(allowance: Allowance, numConductors: number): Allowance {
+  return {
+    unitSystem: allowance.unitSystem,
+    value: allowance.value * numConductors
   }
-  const boxFill = numConductors * allowance.value.value
+}
 
-  if (unitSystem === allowance.value.unitSystem) {
-    return { ok: true, value: { unitSystem, value: boxFill } }
+/**
+ * Gets the clamp fill based on whether or not internal clamps are being used.
+ * Only adds a single allowance, per NEC 314.16(B)(2).
+ * @param allowance The allowance, from table 314.16(B)(1)
+ * @param clampsIncluded Whether or not internal clamps are being used
+ * @returns A result containing the clamp fill, which is calculated as a single allowance if clamps are included, or 0 if they aren't.
+ */
+function getClampFill(allowance: Allowance, internalClampsUsed?: boolean): Allowance {
+  if (internalClampsUsed === true) {
+    return {
+      unitSystem: allowance.unitSystem,
+      value: allowance.value
+    }
   } else {
-    return { ok: true, value: { unitSystem, value: switchUnitSystem(allowance.value).value } }
+    return {
+      unitSystem: allowance.unitSystem,
+      value: 0
+    }
+  }
+}
+
+/**
+ * Gets the support fitting fill based on the number of support fittings used.
+ * @param allowance The allowance, from table 314.16(B)(1)
+ * @param supportFittingsUsed The number of support fittings used.
+ * @returns A result containing the support fitting fill, which is calculated as the allowance times the number of support fittings used.
+ */
+function getSupportFittingFill(allowance: Allowance, supportFittingsUsed?: number): Allowance {
+  if (supportFittingsUsed === undefined) {
+    return {
+      unitSystem: allowance.unitSystem,
+      value: 0
+    }
+  } else {
+    return {
+      unitSystem: allowance.unitSystem,
+      value: allowance.value * supportFittingsUsed
+    }
+  }
+}
+
+/**
+ * Gets the device fill based on the number of devices and number of gangs for those devices.
+ * @param allowance The allowance, from table 314.16(B)(1)
+ * @param device A description of the device, which contains the number of gangs added.
+ * @returns The device fill, which is a double-allowance per gang.
+ */
+function getDeviceFill(allowance: Allowance, device: Device): Allowance {
+  return {
+    unitSystem: allowance.unitSystem,
+    value: allowance.value * 2 * device.numGangs
+  }
+}
+
+/**
+ * Reduces a list of devices to their respective allowances, summing them.
+ * @param allowance The allowance, from table 314.16(B)(1)
+ * @param devices An array of devices to include in the box fill calculation
+ * @returns An Allowance representing the sums of the allowances for all devices included.
+ */
+function getDevicesFillTotal(allowance: Allowance, devices?: Device[]): Allowance {
+  if (devices === undefined) {
+    return {
+      unitSystem: allowance.unitSystem,
+      value: 0
+    }
+  } else {
+    return {
+      unitSystem: allowance.unitSystem,
+      value: devices.reduce((acc, device) => acc + getDeviceFill(allowance, device).value, 0)
+    }
+  }
+}
+
+/**
+ * Calculates the grounding conductor fill, based on the number of grounding conductors and their largest gauge
+ * @param groundingConductors An object containing the number, and size of the largest grounding conductors.
+ * @returns The box fill for grounding conductors.
+ */
+function getGroundingConductorFill(groundingConductors?: Conductors): Allowance {
+  if (groundingConductors === undefined) {
+    return {
+      unitSystem: UnitSystem.Metric,
+      value: 0
+    }
+  }
+
+  const groundingAllowance = getAllowance(groundingConductors)
+  const numFullAllowances = Math.floor(groundingConductors.num / 4)
+  const numPartialAllowances = groundingConductors.num % 4
+  const totalAllowance =
+    numFullAllowances * groundingAllowance.value +
+    numPartialAllowances * 0.25 * groundingAllowance.value
+
+  return {
+    unitSystem: groundingAllowance.unitSystem,
+    value: totalAllowance
+  }
+}
+
+/**
+ * Gets the terminal block fill based on the largest terminated conductor and the number of terminal blocks.
+ * @param terminalBlockFill The largest terminated conductor and the number of terminal blocks.
+ * @returns The allowance for terminal block fill
+ */
+function getTerminalBlockFill(terminalBlockFill?: Conductors): Allowance {
+  if (terminalBlockFill === undefined) {
+    return {
+      unitSystem: UnitSystem.Metric,
+      value: 0
+    }
+  }
+
+  const allowance = getAllowance(terminalBlockFill)
+  return {
+    unitSystem: allowance.unitSystem,
+    value: allowance.value * terminalBlockFill.num
+  }
+}
+
+/**
+ * Calculates the box fill given the largest conductor, number of conductors,
+ * number of yokes/straps, number of grounding connectors, and number of devices.
+ * @param boxFillArgs An object containing the parameters for calculating box fill, e.g. largest conductor, unit system, number of devices, etc.
+ * @returns A result if the box fill can be calculated, or an error if the box fill cannot be calculated.
+ */
+export function getBoxFill(boxFillArgs: BoxFillParameters): Result<BoxFill> {
+  const {
+    generalConductors,
+    internalClampsUsed,
+    supportFittingsUsed,
+    devicesUsed,
+    groundingConductors,
+    terminalBlocks,
+    unitSystem
+  } = boxFillArgs
+
+  const generalAllowance = getAllowance(generalConductors)
+
+  const conductorFill = getConductorFill(generalAllowance, generalConductors.num)
+  const clampFill = getClampFill(generalAllowance, internalClampsUsed)
+  const supportFittingsFill = getSupportFittingFill(generalAllowance, supportFittingsUsed)
+  const deviceFill = getDevicesFillTotal(generalAllowance, devicesUsed)
+  const groundingConductorFill = getGroundingConductorFill(groundingConductors)
+  const terminalBlockFill = getTerminalBlockFill(terminalBlocks)
+
+  const boxFill = {
+    unitSystem: generalAllowance.unitSystem,
+    value:
+      conductorFill.value +
+      clampFill.value +
+      supportFittingsFill.value +
+      deviceFill.value +
+      groundingConductorFill.value +
+      terminalBlockFill.value
+  }
+
+  if (unitSystem === generalAllowance.unitSystem) {
+    const roundedBoxFill = roundBoxFillToNearestTenth(boxFill)
+    return { ok: true, value: roundedBoxFill }
+  } else {
+    const convertedBoxFill = switchUnitSystem(boxFill)
+    const roundedBoxFill = roundBoxFillToNearestTenth(convertedBoxFill)
+    return { ok: true, value: roundedBoxFill }
   }
 }
