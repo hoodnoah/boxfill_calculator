@@ -1,19 +1,33 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
+import { Store } from '@/store/Store'
+import { computed } from 'vue'
+
+import type { Conductors } from '@/lib/BoxFill'
+
+import BoxFillDisplay from '@/components/BoxFillDisplay/BoxFillDisplay.vue'
+import ConductorInput from './components/ConductorInput/ConductorInput.vue'
+
+const boxFill = Store.getBoxFill()
+
+const generalConductors = computed<Conductors>({
+  get: () => {
+    return Store.getGeneralConductors()
+  },
+  set: (generalConductors: Conductors) => {
+    Store.setGeneralConductors(generalConductors)
+  }
+})
 </script>
 
 <template>
   <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
+    <div class="wrapper"></div>
   </header>
 
   <main>
-    <TheWelcome />
+    <BoxFillDisplay v-model:boxFillModel="boxFill" />
+    <h1>general conductors:</h1>
+    <ConductorInput v-model:conductorModel="generalConductors" />
   </main>
 </template>
 
