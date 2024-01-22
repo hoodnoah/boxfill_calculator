@@ -1,4 +1,4 @@
-import { computed, reactive } from 'vue'
+import { computed, reactive, type ComputedRef } from 'vue'
 import { UnitSystem } from '@/lib/BoxFill'
 import {
   type BoxFill,
@@ -6,6 +6,7 @@ import {
   AWGConductor,
   getBoxFill as calculateBoxFill
 } from '@/lib/BoxFill'
+import { type Result } from '@/lib/Result'
 
 /*
    State to manage:
@@ -28,18 +29,14 @@ const State = reactive<State>({
 })
 
 // Getters
-function getBoxFill() {
+function tryGetBoxFill(): ComputedRef<Result<BoxFill>> {
   return computed(() => {
     const boxFillResult = calculateBoxFill({
       generalConductors: State.generalConductors,
       unitSystem: State.unitSystem
     })
 
-    if (!boxFillResult.ok) {
-      throw boxFillResult.error
-    }
-
-    return boxFillResult.value
+    return boxFillResult
   })
 }
 
@@ -62,7 +59,7 @@ function setGeneralConductors(generalConductors: Conductors): void {
 }
 
 export const Store = {
-  getBoxFill,
+  tryGetBoxFill,
   getUnitSystem,
   getGeneralConductors,
   setUnitSystem,

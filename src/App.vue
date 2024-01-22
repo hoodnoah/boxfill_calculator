@@ -2,12 +2,17 @@
 import { Store } from '@/store/Store'
 import { computed } from 'vue'
 
-import type { Conductors } from '@/lib/BoxFill'
+import { type Conductors, UnitSystem } from '@/lib/BoxFill'
 
 import BoxFillDisplay from '@/components/BoxFillDisplay/BoxFillDisplay.vue'
 import ConductorInput from './components/ConductorInput/ConductorInput.vue'
 
-const boxFill = Store.getBoxFill()
+const boxFillResult = Store.tryGetBoxFill()
+
+const unitSystem = computed({
+  get: () => Store.getUnitSystem(),
+  set: (unitSystem: UnitSystem) => Store.setUnitSystem(unitSystem)
+})
 
 const generalConductors = computed<Conductors>({
   get: () => {
@@ -25,7 +30,7 @@ const generalConductors = computed<Conductors>({
   </header>
 
   <main>
-    <BoxFillDisplay v-model:boxFillModel="boxFill" />
+    <BoxFillDisplay v-model:unitSystemModel="unitSystem" :box-fill-result="boxFillResult" />
     <h1>general conductors:</h1>
     <ConductorInput v-model:conductorModel="generalConductors" />
   </main>

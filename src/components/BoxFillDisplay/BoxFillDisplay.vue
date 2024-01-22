@@ -1,20 +1,36 @@
 <script setup lang="ts">
-import { Store } from '@/store/Store'
-import { computed, defineModel } from 'vue'
+import { computed, defineModel, defineProps } from 'vue'
+
+import { type Result } from '@/lib/Result'
+import { UnitSystem, type BoxFill } from '@/lib/BoxFill'
 
 import UnitSystemToggle from '@/components/BoxFillDisplay/UnitSystemToggle.vue'
-import { type BoxFill } from '@/lib/BoxFill'
 
-const boxFillModel = defineModel<BoxFill>('boxFillModel', { type: Object, required: true })
+const props = defineProps({
+  boxFillResult: {
+    type: Object as () => Result<BoxFill>,
+    required: true
+  }
+})
 
-// Rounds/pads the box fill value to one decimal place
-const boxFillDisplayValue = computed(() => {
-  return boxFillModel.value.value.toFixed(1)
+const unitSystemModel = defineModel('unitSystemModel', {
+  type: Object as () => UnitSystem,
+  required: true
+})
+
+const boxFillDisplayValue = computed<string>(() => {
+  if (props.boxFillResult.ok === false) {
+    return 'error'
+  } else {
+    return props.boxFillResult.value.value.toFixed(1)
+  }
 })
 </script>
 
 <template>
   <div class="box-fill-display">
-    <h1>{{ boxFillDisplayValue }} <UnitSystemToggle /></h1>
+    <h1>
+      {{ boxFillDisplayValue }} <UnitSystemToggle v-model:unit-system-model="unitSystemModel" />
+    </h1>
   </div>
 </template>
