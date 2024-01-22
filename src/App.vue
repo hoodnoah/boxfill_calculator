@@ -3,10 +3,13 @@ import { Store } from '@/store/Store'
 import { computed } from 'vue'
 
 import { type Conductors, UnitSystem } from '@/lib/BoxFill'
+import { Option } from '@/lib/Option'
 
 import BoxFillDisplay from '@/components/BoxFillDisplay/BoxFillDisplay.vue'
-import ConductorInput from './components/ConductorInput/ConductorInput.vue'
+import ConductorInput from '@/components/ConductorInput.vue'
+import ClampToggle from '@/components/ClampToggle.vue'
 
+// Computed property at the Store level
 const boxFillResult = Store.tryGetBoxFill()
 
 const unitSystem = computed({
@@ -22,6 +25,11 @@ const generalConductors = computed<Conductors>({
     Store.setGeneralConductors(generalConductors)
   }
 })
+
+const internalClamps = computed({
+  get: () => Store.getInternalClamps(),
+  set: (internalClamps: Option.Option<Conductors>) => Store.setInternalClamps(internalClamps)
+})
 </script>
 
 <template>
@@ -30,9 +38,18 @@ const generalConductors = computed<Conductors>({
   </header>
 
   <main>
+    <!-- Readout -->
     <BoxFillDisplay v-model:unitSystemModel="unitSystem" :box-fill-result="boxFillResult" />
-    <h1>general conductors:</h1>
+
+    <!-- Input -->
+    <h2>general conductors:</h2>
     <ConductorInput v-model:conductorModel="generalConductors" />
+
+    <h2>internal clamps:</h2>
+    <ClampToggle
+      v-model:clamps-used-model="internalClamps"
+      :largestAWG="generalConductors.largestAWG"
+    />
   </main>
 </template>
 

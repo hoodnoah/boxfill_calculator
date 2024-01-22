@@ -3,6 +3,7 @@ import { describe, it, expect } from 'vitest'
 import { AWGConductor, UnitSystem, getBoxFill } from '../BoxFill'
 import type { BoxFill, Device } from '../BoxFill'
 import { unwrapOrThrow } from '../Result'
+import { Option } from '../Option'
 
 describe('CalculateBoxFill', () => {
   it('agrees with table 314.16(A) for a 100mm X 32mm round/octagonal box w/ 18 AWG conductors', () => {
@@ -69,7 +70,7 @@ describe('CalculateBoxFill', () => {
     const actualResult = unwrapOrThrow(
       getBoxFill({
         generalConductors: { largestAWG: AWGConductor.AWG_6, num: 2 },
-        internalClamps: { largestAWG: AWGConductor.AWG_6 },
+        internalClamps: Option.Some({ largestAWG: AWGConductor.AWG_6 }),
         unitSystem: UnitSystem.Metric
       })
     )
@@ -82,7 +83,7 @@ describe('CalculateBoxFill', () => {
     const actualResult = unwrapOrThrow(
       getBoxFill({
         generalConductors: { largestAWG: AWGConductor.AWG_6, num: 2 },
-        internalClamps: { largestAWG: AWGConductor.AWG_6 },
+        internalClamps: Option.Some({ largestAWG: AWGConductor.AWG_6 }),
         unitSystem: UnitSystem.Imperial
       })
     )
@@ -100,7 +101,7 @@ describe('CalculateBoxFill', () => {
     const actualResult = unwrapOrThrow(
       getBoxFill({
         generalConductors: { largestAWG: AWGConductor.AWG_18, num: 14 },
-        supportFittings: { largestAWG: AWGConductor.AWG_18, num: 3 },
+        supportFittings: Option.Some({ largestAWG: AWGConductor.AWG_18, num: 3 }),
         unitSystem: UnitSystem.Metric
       })
     )
@@ -118,7 +119,7 @@ describe('CalculateBoxFill', () => {
     const actualResult = unwrapOrThrow(
       getBoxFill({
         generalConductors: { largestAWG: AWGConductor.AWG_18, num: 14 },
-        supportFittings: { largestAWG: AWGConductor.AWG_18, num: 3 },
+        supportFittings: Option.Some({ largestAWG: AWGConductor.AWG_18, num: 3 }),
         unitSystem: UnitSystem.Imperial
       })
     )
@@ -141,9 +142,9 @@ describe('CalculateBoxFill', () => {
     const actualResult = unwrapOrThrow(
       getBoxFill({
         generalConductors: { largestAWG: AWGConductor.AWG_12, num: 3 },
-        internalClamps: { largestAWG: AWGConductor.AWG_12 },
-        supportFittings: { largestAWG: AWGConductor.AWG_12, num: 1 },
-        devicesUsed: { largestAWG: AWGConductor.AWG_12, devices },
+        internalClamps: Option.Some({ largestAWG: AWGConductor.AWG_12 }),
+        supportFittings: Option.Some({ largestAWG: AWGConductor.AWG_12, num: 1 }),
+        devicesUsed: Option.Some({ largestAWG: AWGConductor.AWG_12, devices }),
         unitSystem: UnitSystem.Metric
       })
     )
@@ -165,7 +166,7 @@ describe('CalculateBoxFill', () => {
       getBoxFill({
         generalConductors: { largestAWG: AWGConductor.AWG_12, num: 3 },
         unitSystem: UnitSystem.Metric,
-        groundingConductors: { largestAWG: AWGConductor.AWG_6, num: 9 }
+        groundingConductors: Option.Some({ largestAWG: AWGConductor.AWG_6, num: 9 })
       })
     )
 
@@ -185,7 +186,7 @@ describe('CalculateBoxFill', () => {
       getBoxFill({
         generalConductors: { largestAWG: AWGConductor.AWG_10, num: 1 },
         unitSystem: UnitSystem.Metric,
-        terminalBlocks: { largestAWG: AWGConductor.AWG_14, num: 2 }
+        terminalBlocks: Option.Some({ largestAWG: AWGConductor.AWG_14, num: 2 })
       })
     )
 

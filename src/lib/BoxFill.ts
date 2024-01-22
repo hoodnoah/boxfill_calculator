@@ -1,4 +1,5 @@
 import { wrap, type Result } from './Result'
+import { Option } from '@/lib/Option'
 
 const CM_PER_INCH = 2.54
 
@@ -10,6 +11,11 @@ export enum UnitSystem {
 export interface Allowance {
   unitSystem: UnitSystem
   value: number
+}
+
+const DEFAULT_ZERO_ALLOWANCE = {
+  unitSystem: UnitSystem.Metric,
+  value: 0
 }
 
 export type BoxFill = Allowance
@@ -46,11 +52,11 @@ export interface SupportFittings extends Conductor {
 
 export interface BoxFillParameters {
   generalConductors: Conductors
-  internalClamps?: Conductor
-  supportFittings?: SupportFittings
-  devicesUsed?: Devices
-  groundingConductors?: Conductors
-  terminalBlocks?: Conductors
+  internalClamps?: Option.Option<Conductor>
+  supportFittings?: Option.Option<SupportFittings>
+  devicesUsed?: Option.Option<Devices>
+  groundingConductors?: Option.Option<Conductors>
+  terminalBlocks?: Option.Option<Conductors>
   unitSystem: UnitSystem
 }
 
@@ -117,19 +123,14 @@ function getConductorFill(generalConductors: Conductors): Allowance {
  * @param clampsIncluded Whether or not internal clamps are being used
  * @returns A result containing the clamp fill, which is calculated as a single allowance if clamps are included, or 0 if they aren't.
  */
-function getClampFill(internalClampsUsed?: Conductor): Allowance {
-  if (internalClampsUsed === undefined) {
+function getClampFill(internalClamps: Option.Option<Conductor>): Option.Option<Allowance> {
+  return Option.map(internalClamps, (clamps) => {
+    const allowance = getAllowance(clamps)
     return {
-      unitSystem: UnitSystem.Metric,
-      value: 0
+      unitSystem: allowance.unitSystem,
+      value: allowance.value
     }
-  }
-
-  const allowance = getAllowance(internalClampsUsed)
-  return {
-    unitSystem: allowance.unitSystem,
-    value: allowance.value
-  }
+  })
 }
 
 /**
@@ -138,19 +139,16 @@ function getClampFill(internalClampsUsed?: Conductor): Allowance {
  * @param supportFittingsUsed The number of support fittings used.
  * @returns A result containing the support fitting fill, which is calculated as the allowance times the number of support fittings used.
  */
-function getSupportFittingFill(supportFittings?: SupportFittings): Allowance {
-  if (supportFittings === undefined) {
-    return {
-      unitSystem: UnitSystem.Metric,
-      value: 0
-    }
-  } else {
-    const allowance = getAllowance(supportFittings)
+function getSupportFittingFill(
+  supportFittings: Option.Option<SupportFittings>
+): Option.Option<Allowance> {
+  return Option.map(supportFittings, (fittings) => {
+    const allowance = getAllowance(fittings)
     return {
       unitSystem: allowance.unitSystem,
-      value: allowance.value * supportFittings.num
+      value: allowance.value * fittings.num
     }
-  }
+  })
 }
 
 /**
@@ -172,13 +170,8 @@ function getDeviceFill(allowance: Allowance, device: Device): Allowance {
  * @param devices An array of devices to include in the box fill calculation
  * @returns An Allowance representing the sums of the allowances for all devices included.
  */
-function getDevicesFillTotal(devices?: Devices): Allowance {
-  if (devices === undefined) {
-    return {
-      unitSystem: UnitSystem.Metric,
-      value: 0
-    }
-  } else {
+function getDevicesFillTotal(devices: Option.Option<Devices>): Option.Option<Allowance> {
+  return Option.map(devices, (devices) => {
     const allowance = getAllowance(devices)
     return {
       unitSystem: allowance.unitSystem,
@@ -187,7 +180,7 @@ function getDevicesFillTotal(devices?: Devices): Allowance {
         0
       )
     }
-  }
+  })
 }
 
 /**
@@ -195,25 +188,22 @@ function getDevicesFillTotal(devices?: Devices): Allowance {
  * @param groundingConductors An object containing the number, and size of the largest grounding conductors.
  * @returns The box fill for grounding conductors.
  */
-function getGroundingConductorFill(groundingConductors?: Conductors): Allowance {
-  if (groundingConductors === undefined) {
+function getGroundingConductorFill(
+  groundingConductors: Option.Option<Conductors>
+): Option.Option<Allowance> {
+  return Option.map(groundingConductors, (groundingConductors) => {
+    const groundingAllowance = getAllowance(groundingConductors)
+    const numFullAllowances = Math.floor(groundingConductors.num / 4)
+    const numPartialAllowances = groundingConductors.num % 4
+    const totalAllowance =
+      numFullAllowances * groundingAllowance.value +
+      numPartialAllowances * 0.25 * groundingAllowance.value
+
     return {
-      unitSystem: UnitSystem.Metric,
-      value: 0
+      unitSystem: groundingAllowance.unitSystem,
+      value: totalAllowance
     }
-  }
-
-  const groundingAllowance = getAllowance(groundingConductors)
-  const numFullAllowances = Math.floor(groundingConductors.num / 4)
-  const numPartialAllowances = groundingConductors.num % 4
-  const totalAllowance =
-    numFullAllowances * groundingAllowance.value +
-    numPartialAllowances * 0.25 * groundingAllowance.value
-
-  return {
-    unitSystem: groundingAllowance.unitSystem,
-    value: totalAllowance
-  }
+  })
 }
 
 /**
@@ -221,19 +211,16 @@ function getGroundingConductorFill(groundingConductors?: Conductors): Allowance 
  * @param terminalBlockFill The largest terminated conductor and the number of terminal blocks.
  * @returns The allowance for terminal block fill
  */
-function getTerminalBlockFill(terminalBlockFill?: Conductors): Allowance {
-  if (terminalBlockFill === undefined) {
+function getTerminalBlockFill(
+  terminalBlockFill: Option.Option<Conductors>
+): Option.Option<Allowance> {
+  return Option.map(terminalBlockFill, (terminalBlockFill) => {
+    const allowance = getAllowance(terminalBlockFill)
     return {
-      unitSystem: UnitSystem.Metric,
-      value: 0
+      unitSystem: allowance.unitSystem,
+      value: allowance.value * terminalBlockFill.num
     }
-  }
-
-  const allowance = getAllowance(terminalBlockFill)
-  return {
-    unitSystem: allowance.unitSystem,
-    value: allowance.value * terminalBlockFill.num
-  }
+  })
 }
 
 /**
@@ -243,24 +230,33 @@ function getTerminalBlockFill(terminalBlockFill?: Conductors): Allowance {
  * @returns A result if the box fill can be calculated, or an error if the box fill cannot be calculated.
  */
 export function getBoxFill(boxFillArgs: BoxFillParameters): Result<BoxFill> {
-  const {
-    generalConductors,
-    internalClamps,
-    supportFittings,
-    devicesUsed,
-    groundingConductors,
-    terminalBlocks,
-    unitSystem
-  } = boxFillArgs
+  // Null-coalesce the optional parameters into Option.None
+  const generalConductors = boxFillArgs.generalConductors
+  const supportFittings = boxFillArgs.supportFittings ?? Option.None()
+  const internalClamps = boxFillArgs.internalClamps ?? Option.None()
+  const devicesUsed = boxFillArgs.devicesUsed ?? Option.None()
+  const groundingConductors = boxFillArgs.groundingConductors ?? Option.None()
+  const terminalBlocks = boxFillArgs.terminalBlocks ?? Option.None()
+  const unitSystem = boxFillArgs.unitSystem
 
+  // Get the allowance for the largest conductor
   const generalAllowance = getAllowance(generalConductors)
 
   const conductorFill = getConductorFill(generalConductors)
-  const clampFill = getClampFill(internalClamps)
-  const supportFittingsFill = getSupportFittingFill(supportFittings)
-  const deviceFill = getDevicesFillTotal(devicesUsed)
-  const groundingConductorFill = getGroundingConductorFill(groundingConductors)
-  const terminalBlockFill = getTerminalBlockFill(terminalBlocks)
+  const clampFill = Option.getOrDefault(getClampFill(internalClamps), DEFAULT_ZERO_ALLOWANCE)
+  const supportFittingsFill = Option.getOrDefault(
+    getSupportFittingFill(supportFittings),
+    DEFAULT_ZERO_ALLOWANCE
+  )
+  const deviceFill = Option.getOrDefault(getDevicesFillTotal(devicesUsed), DEFAULT_ZERO_ALLOWANCE)
+  const groundingConductorFill = Option.getOrDefault(
+    getGroundingConductorFill(groundingConductors),
+    DEFAULT_ZERO_ALLOWANCE
+  )
+  const terminalBlockFill = Option.getOrDefault(
+    getTerminalBlockFill(terminalBlocks),
+    DEFAULT_ZERO_ALLOWANCE
+  )
 
   const boxFill = {
     unitSystem: generalAllowance.unitSystem,
