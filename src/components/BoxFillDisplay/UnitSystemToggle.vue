@@ -4,7 +4,7 @@ import { computed, defineModel } from 'vue'
 import { UnitSystem } from '@/lib/BoxFill'
 
 const unitSystemModel = defineModel('unitSystemModel', {
-  type: Object,
+  type: Number as () => UnitSystem,
   required: true
 })
 

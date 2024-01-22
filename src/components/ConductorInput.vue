@@ -19,7 +19,7 @@ function updateConductorModel() {
 </script>
 
 <template>
-  <input type="number" v-model="conductorModel.num" @change="updateConductorModel" />
+  <input type="number" min="0" v-model="conductorModel.num" @change="updateConductorModel" />
 
   <select v-model="conductorModel.largestAWG" @change="updateConductorModel">
     <option v-for="awg in awgOptions" :key="awg" :value="awg">{{ 'AWG ' + awg }}</option>

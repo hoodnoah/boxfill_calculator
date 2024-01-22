@@ -14,7 +14,7 @@ const props = defineProps({
 })
 
 const unitSystemModel = defineModel('unitSystemModel', {
-  type: Object as () => UnitSystem,
+  type: Number as () => UnitSystem,
   required: true
 })
 

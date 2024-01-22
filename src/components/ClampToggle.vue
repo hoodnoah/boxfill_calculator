@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineEmits, defineModel, defineProps } from 'vue'
+import { computed, defineModel, watch } from 'vue'
 import { Option } from '@/lib/Option'
 import { type Conductor, AWGConductor } from '@/lib/BoxFill'
 
@@ -38,6 +38,21 @@ function toggleClampsUsedValue() {
     emit('update:clampsUsedModel', Option.None())
   }
 }
+
+// Update the AWG value in clampsUsedModel when it's changed
+watch(
+  () => props.largestAWG,
+  () => {
+    if (clampsUsedModel.value._tag === 'Some') {
+      emit(
+        'update:clampsUsedModel',
+        Option.Some({
+          largestAWG: props.largestAWG
+        })
+      )
+    }
+  }
+)
 </script>
 
 <template>
