@@ -1,27 +1,13 @@
 <script setup lang="ts">
-import type { Conductors } from '@/lib/BoxFill'
+import type { NumConductors } from '@/lib/BoxFill'
 import { defineModel } from 'vue'
-import { AWGConductor } from '@/lib/BoxFill'
 
-const emit = defineEmits(['update:conductorModel'])
-
-// get all supported AWG options
-const awgOptions = Object.values(AWGConductor).filter((x) => !isNaN(Number(x)))
-
-const conductorModel = defineModel<Conductors>('conductorModel', { type: Object, required: true })
-
-function updateConductorModel() {
-  emit('update:conductorModel', {
-    num: conductorModel.value.num,
-    largestAWG: conductorModel.value.largestAWG
-  })
-}
+const numConductorsModel = defineModel({
+  type: Number as () => NumConductors,
+  required: true
+})
 </script>
 
 <template>
-  <input type="number" min="0" v-model="conductorModel.num" @change="updateConductorModel" />
-
-  <select v-model="conductorModel.largestAWG" @change="updateConductorModel">
-    <option v-for="awg in awgOptions" :key="awg" :value="awg">{{ 'AWG ' + awg }}</option>
-  </select>
+  <input type="number" min="0" v-model="numConductorsModel" />
 </template>

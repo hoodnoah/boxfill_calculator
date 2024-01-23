@@ -1,19 +1,9 @@
 <script setup lang="ts">
-import { computed, defineModel, watch } from 'vue'
+import { computed, defineModel } from 'vue'
 import { Option } from '@/lib/Option'
-import { type Conductor, AWGConductor } from '@/lib/BoxFill'
 
-const emit = defineEmits(['update:clampsUsedModel'])
-
-const props = defineProps({
-  largestAWG: {
-    type: Number as () => AWGConductor,
-    required: true
-  }
-})
-
-const clampsUsedModel = defineModel('clampsUsedModel', {
-  type: Object as () => Option.Option<Conductor>,
+const clampsUsedModel = defineModel({
+  type: Object as () => Option.Option<null>,
   required: true
 })
 
@@ -25,36 +15,15 @@ const clampsUsedDisplayValue = computed<string>(() => {
   }
 })
 
-function toggleClampsUsedValue() {
-  if (clampsUsedModel.value._tag === 'None') {
-    emit(
-      'update:clampsUsedModel',
-      Option.Some({
-        num: 1,
-        largestAWG: props.largestAWG
-      })
-    )
+function toggleClampsUsed() {
+  if (clampsUsedModel.value === undefined || clampsUsedModel.value._tag === 'None') {
+    clampsUsedModel.value = Option.Some(null)
   } else {
-    emit('update:clampsUsedModel', Option.None())
+    clampsUsedModel.value = Option.None()
   }
 }
-
-// Update the AWG value in clampsUsedModel when it's changed
-watch(
-  () => props.largestAWG,
-  () => {
-    if (clampsUsedModel.value._tag === 'Some') {
-      emit(
-        'update:clampsUsedModel',
-        Option.Some({
-          largestAWG: props.largestAWG
-        })
-      )
-    }
-  }
-)
 </script>
 
 <template>
-  <button @click="toggleClampsUsedValue">{{ clampsUsedDisplayValue }}</button>
+  <button @click="toggleClampsUsed">{{ clampsUsedDisplayValue }}</button>
 </template>

@@ -39,4 +39,12 @@ export namespace Option {
         return option.value
     }
   }
+
+  export function isSome<T>(option: Option<T>): boolean {
+    return (option as Some<T>)._tag === 'Some'
+  }
+
+  export function isNone<T>(option: Option<T>): boolean {
+    return (option as None)._tag === 'None'
+  }
 }

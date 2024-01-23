@@ -2,10 +2,17 @@
 import { Store } from '@/store/Store'
 import { computed } from 'vue'
 
-import { type Conductors, UnitSystem } from '@/lib/BoxFill'
+import {
+  type Conductors,
+  UnitSystem,
+  AWGConductor,
+  type NumConductors,
+  type NumSupportFittings
+} from '@/lib/BoxFill'
 import { Option } from '@/lib/Option'
 
 import BoxFillDisplay from '@/components/BoxFillDisplay/BoxFillDisplay.vue'
+import AWGInput from './components/AWGInput.vue'
 import ConductorInput from '@/components/ConductorInput.vue'
 import ClampToggle from '@/components/ClampToggle.vue'
 
@@ -17,18 +24,25 @@ const unitSystem = computed({
   set: (unitSystem: UnitSystem) => Store.setUnitSystem(unitSystem)
 })
 
-const generalConductors = computed<Conductors>({
-  get: () => {
-    return Store.getGeneralConductors()
-  },
-  set: (generalConductors: Conductors) => {
-    Store.setGeneralConductors(generalConductors)
-  }
+const largestConductor = computed({
+  get: () => Store.getLargestConductor(),
+  set: (largestConductor: AWGConductor) => Store.setLargestConductor(largestConductor)
+})
+
+const generalConductors = computed<NumConductors>({
+  get: () => Store.getGeneralConductors(),
+  set: (generalConductors: NumConductors) => Store.setGeneralConductors(generalConductors)
 })
 
 const internalClamps = computed({
   get: () => Store.getInternalClamps(),
-  set: (internalClamps: Option.Option<Conductors>) => Store.setInternalClamps(internalClamps)
+  set: (internalClamps: Option.Option<null>) => Store.setInternalClamps(internalClamps)
+})
+
+const supportFittings = computed({
+  get: () => Store.getSupportFittings(),
+  set: (supportFittings: Option.Option<NumSupportFittings>) =>
+    Store.setSupportFittings(supportFittings)
 })
 </script>
 
@@ -42,14 +56,17 @@ const internalClamps = computed({
     <BoxFillDisplay v-model:unitSystemModel="unitSystem" :box-fill-result="boxFillResult" />
 
     <!-- Input -->
+    <h2>largest conductor in box:</h2>
+    <AWGInput v-model="largestConductor" />
+
     <h2>general conductors:</h2>
-    <ConductorInput v-model:conductorModel="generalConductors" />
+    <ConductorInput v-model="generalConductors" />
 
     <h2>internal clamps:</h2>
-    <ClampToggle
-      v-model:clamps-used-model="internalClamps"
-      :largestAWG="generalConductors.largestAWG"
-    />
+    <ClampToggle v-model="internalClamps" />
+
+    <!-- <h2>support fittings:</h2>
+    <SupportFittingsInput v-model="supportFittings" /> -->
   </main>
 </template>
 
