@@ -1,12 +1,14 @@
 import { wrap, type Result } from './Result'
 import { Option } from '@/lib/Option'
 
-const CM_PER_INCH = 2.54
+const CM_PER_INCH = 2.54 as const
 
 export enum UnitSystem {
   Metric,
   Imperial
 }
+
+const DEFAULT_UNIT_SYSTEM = UnitSystem.Metric as const
 
 export interface Allowance {
   unitSystem: UnitSystem
@@ -30,15 +32,19 @@ export enum AWGConductor {
   AWG_6 = 6
 }
 
+export type NumConductors = number
+export type NumSupportFittings = number
+
 export interface Conductor {
   largestAWG: AWGConductor
 }
 
 export interface Device {
+  largestAWG: AWGConductor
   numGangs: number
 }
 
-export interface Devices extends Conductor {
+export interface Devices {
   devices: Device[]
 }
 
@@ -46,27 +52,19 @@ export interface Conductors extends Conductor {
   num: number
 }
 
-export interface SupportFittings extends Conductor {
-  num: number
-}
-
 export interface BoxFillParameters {
-  generalConductors: Conductors
-  internalClamps?: Option.Option<Conductor>
-  supportFittings?: Option.Option<SupportFittings>
+  largestConductor: AWGConductor
+  generalConductors: NumConductors
+  internalClamps?: Option.Option<null>
+  supportFittings?: Option.Option<NumSupportFittings>
   devicesUsed?: Option.Option<Devices>
   groundingConductors?: Option.Option<Conductors>
   terminalBlocks?: Option.Option<Conductors>
   unitSystem: UnitSystem
 }
 
-function roundBoxFillToNearestTenth(boxFill: BoxFill): BoxFill {
-  const roundedValue = Math.round(boxFill.value * 10) / 10
-  return { ...boxFill, value: roundedValue }
-}
-
-function getAllowance(conductor: Conductor): Allowance {
-  switch (conductor.largestAWG) {
+function getAllowance(awgConductor: AWGConductor): Allowance {
+  switch (awgConductor) {
     case AWGConductor.AWG_18:
       return { unitSystem: UnitSystem.Metric, value: 24.6 }
     case AWGConductor.AWG_16:
@@ -108,11 +106,11 @@ function switchUnitSystem(allowance: Allowance): Allowance {
  * @param numConductors The number of conductors in the box (does not include grounds)
  * @returns The conductor fill in cubic centimeters.
  */
-function getConductorFill(generalConductors: Conductors): Allowance {
-  const allowance = getAllowance(generalConductors)
+function getConductorFill(largestAWG: AWGConductor, generalConductors: NumConductors): Allowance {
+  const allowance = getAllowance(largestAWG)
   return {
     unitSystem: allowance.unitSystem,
-    value: allowance.value * generalConductors.num
+    value: allowance.value * generalConductors
   }
 }
 
@@ -123,9 +121,12 @@ function getConductorFill(generalConductors: Conductors): Allowance {
  * @param clampsIncluded Whether or not internal clamps are being used
  * @returns A result containing the clamp fill, which is calculated as a single allowance if clamps are included, or 0 if they aren't.
  */
-function getClampFill(internalClamps: Option.Option<Conductor>): Option.Option<Allowance> {
-  return Option.map(internalClamps, (clamps) => {
-    const allowance = getAllowance(clamps)
+function getClampFill(
+  largestAWG: AWGConductor,
+  internalClamps: Option.Option<null>
+): Option.Option<Allowance> {
+  return Option.map(internalClamps, () => {
+    const allowance = getAllowance(largestAWG)
     return {
       unitSystem: allowance.unitSystem,
       value: allowance.value
@@ -140,24 +141,25 @@ function getClampFill(internalClamps: Option.Option<Conductor>): Option.Option<A
  * @returns A result containing the support fitting fill, which is calculated as the allowance times the number of support fittings used.
  */
 function getSupportFittingFill(
-  supportFittings: Option.Option<SupportFittings>
+  largestAWG: AWGConductor,
+  supportFittings: Option.Option<NumSupportFittings>
 ): Option.Option<Allowance> {
   return Option.map(supportFittings, (fittings) => {
-    const allowance = getAllowance(fittings)
+    const allowance = getAllowance(largestAWG)
     return {
       unitSystem: allowance.unitSystem,
-      value: allowance.value * fittings.num
+      value: allowance.value * fittings
     }
   })
 }
 
 /**
  * Gets the device fill based on the number of devices and number of gangs for those devices.
- * @param allowance The allowance, from table 314.16(B)(1)
  * @param device A description of the device, which contains the number of gangs added.
  * @returns The device fill, which is a double-allowance per gang.
  */
-function getDeviceFill(allowance: Allowance, device: Device): Allowance {
+function getDeviceFill(device: Device): Allowance {
+  const allowance = getAllowance(device.largestAWG)
   return {
     unitSystem: allowance.unitSystem,
     value: allowance.value * 2 * device.numGangs
@@ -172,14 +174,14 @@ function getDeviceFill(allowance: Allowance, device: Device): Allowance {
  */
 function getDevicesFillTotal(devices: Option.Option<Devices>): Option.Option<Allowance> {
   return Option.map(devices, (devices) => {
-    const allowance = getAllowance(devices)
-    return {
-      unitSystem: allowance.unitSystem,
-      value: devices.devices.reduce(
-        (acc, device) => acc + getDeviceFill(allowance, device).value,
-        0
-      )
-    }
+    const deviceAllowances = devices.devices.map(getDeviceFill)
+    const totalAllowance = deviceAllowances.reduce((acc, cur) => {
+      return {
+        unitSystem: acc.unitSystem,
+        value: acc.value + cur.value
+      }
+    })
+    return totalAllowance
   })
 }
 
@@ -192,7 +194,7 @@ function getGroundingConductorFill(
   groundingConductors: Option.Option<Conductors>
 ): Option.Option<Allowance> {
   return Option.map(groundingConductors, (groundingConductors) => {
-    const groundingAllowance = getAllowance(groundingConductors)
+    const groundingAllowance = getAllowance(groundingConductors.largestAWG)
     const numFullAllowances = Math.floor(groundingConductors.num / 4)
     const numPartialAllowances = groundingConductors.num % 4
     const totalAllowance =
@@ -215,7 +217,7 @@ function getTerminalBlockFill(
   terminalBlockFill: Option.Option<Conductors>
 ): Option.Option<Allowance> {
   return Option.map(terminalBlockFill, (terminalBlockFill) => {
-    const allowance = getAllowance(terminalBlockFill)
+    const allowance = getAllowance(terminalBlockFill.largestAWG)
     return {
       unitSystem: allowance.unitSystem,
       value: allowance.value * terminalBlockFill.num
@@ -231,6 +233,7 @@ function getTerminalBlockFill(
  */
 export function getBoxFill(boxFillArgs: BoxFillParameters): Result<BoxFill> {
   // Null-coalesce the optional parameters into Option.None
+  const largestAWG = boxFillArgs.largestConductor
   const generalConductors = boxFillArgs.generalConductors
   const supportFittings = boxFillArgs.supportFittings ?? Option.None()
   const internalClamps = boxFillArgs.internalClamps ?? Option.None()
@@ -239,13 +242,14 @@ export function getBoxFill(boxFillArgs: BoxFillParameters): Result<BoxFill> {
   const terminalBlocks = boxFillArgs.terminalBlocks ?? Option.None()
   const unitSystem = boxFillArgs.unitSystem
 
-  // Get the allowance for the largest conductor
-  const generalAllowance = getAllowance(generalConductors)
-
-  const conductorFill = getConductorFill(generalConductors)
-  const clampFill = Option.getOrDefault(getClampFill(internalClamps), DEFAULT_ZERO_ALLOWANCE)
+  // Calculate intermediate fill values, default to 0 if None
+  const conductorFill = getConductorFill(largestAWG, generalConductors)
+  const clampFill = Option.getOrDefault(
+    getClampFill(largestAWG, internalClamps),
+    DEFAULT_ZERO_ALLOWANCE
+  )
   const supportFittingsFill = Option.getOrDefault(
-    getSupportFittingFill(supportFittings),
+    getSupportFittingFill(largestAWG, supportFittings),
     DEFAULT_ZERO_ALLOWANCE
   )
   const deviceFill = Option.getOrDefault(getDevicesFillTotal(devicesUsed), DEFAULT_ZERO_ALLOWANCE)
@@ -259,7 +263,7 @@ export function getBoxFill(boxFillArgs: BoxFillParameters): Result<BoxFill> {
   )
 
   const boxFill = {
-    unitSystem: generalAllowance.unitSystem,
+    unitSystem: DEFAULT_UNIT_SYSTEM,
     value:
       conductorFill.value +
       clampFill.value +
@@ -269,12 +273,10 @@ export function getBoxFill(boxFillArgs: BoxFillParameters): Result<BoxFill> {
       terminalBlockFill.value
   }
 
-  if (unitSystem === generalAllowance.unitSystem) {
-    const roundedBoxFill = roundBoxFillToNearestTenth(boxFill)
-    return wrap(roundedBoxFill)
+  if (unitSystem === boxFill.unitSystem) {
+    return wrap(boxFill)
   } else {
     const convertedBoxFill = switchUnitSystem(boxFill)
-    const roundedBoxFill = roundBoxFillToNearestTenth(convertedBoxFill)
-    return wrap(roundedBoxFill)
+    return wrap(convertedBoxFill)
   }
 }
