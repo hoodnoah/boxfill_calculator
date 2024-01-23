@@ -1,33 +1,32 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { Option } from '@/lib/Option'
-import type { Conductors } from '@/lib/BoxFill'
-import { ref } from 'vue'
-
-const emit = defineEmits(['update:modelValue'])
+import type { NumSupportFittings } from '@/lib/BoxFill'
 
 const model = defineModel({
-  type: Object as () => Option.Option<Conductors>,
+  type: Object as () => Option.Option<NumSupportFittings>,
   required: true
 })
 
-const displayValue = ref(0)
-
-function updateModel() {
-  if (displayValue.value > 0) {
-    // emit('update:modelValue', Option.Some({largestAWG: model.value.}))
-  } else {
-    emit('update:modelValue', Option.None)
+const displayValue = computed({
+  get: () => {
+    if (model.value === undefined || model.value._tag === 'None') {
+      return 0
+    } else {
+      return model.value.value
+    }
+  },
+  set: (newValue) => {
+    if (newValue === 0) {
+      model.value = Option.None()
+    } else {
+      model.value = Option.Some(newValue)
+    }
   }
-}
+})
 </script>
 
 <template>
   <label for="support-fittings">Number of support fittings</label>
-  <input
-    name="support-fittings"
-    type="number"
-    min="0"
-    v-model="displayValue"
-    @input="updateModel"
-  />
+  <input name="support-fittings" type="number" min="0" v-model="displayValue" />
 </template>

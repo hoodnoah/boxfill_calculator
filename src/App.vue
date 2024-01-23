@@ -3,7 +3,6 @@ import { Store } from '@/store/Store'
 import { computed } from 'vue'
 
 import {
-  type Conductors,
   UnitSystem,
   AWGConductor,
   type NumConductors,
@@ -15,6 +14,7 @@ import BoxFillDisplay from '@/components/BoxFillDisplay/BoxFillDisplay.vue'
 import AWGInput from './components/AWGInput.vue'
 import ConductorInput from '@/components/ConductorInput.vue'
 import ClampToggle from '@/components/ClampToggle.vue'
+import SupportFittingsInput from './components/SupportFittingsInput.vue'
 
 // Computed property at the Store level
 const boxFillResult = Store.tryGetBoxFill()
@@ -65,8 +65,8 @@ const supportFittings = computed({
     <h2>internal clamps:</h2>
     <ClampToggle v-model="internalClamps" />
 
-    <!-- <h2>support fittings:</h2>
-    <SupportFittingsInput v-model="supportFittings" /> -->
+    <h2>support fittings:</h2>
+    <SupportFittingsInput v-model="supportFittings" />
   </main>
 </template>
 

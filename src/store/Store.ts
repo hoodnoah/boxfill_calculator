@@ -1,11 +1,6 @@
 import { computed, reactive, type ComputedRef } from 'vue'
 import { UnitSystem, type NumConductors, type NumSupportFittings } from '@/lib/BoxFill'
-import {
-  type BoxFill,
-  type Conductors,
-  AWGConductor,
-  getBoxFill as calculateBoxFill
-} from '@/lib/BoxFill'
+import { type BoxFill, AWGConductor, getBoxFill as calculateBoxFill } from '@/lib/BoxFill'
 import { type Result } from '@/lib/Result'
 import { Option } from '@/lib/Option'
 
