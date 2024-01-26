@@ -54,7 +54,6 @@ const devices = computed<Option.Option<IDDevices>>({
   set: (devices) => {
     const rawDevices = Option.getOrDefault(devices, [])
     Store.setDevices(rawDevices)
-    console.log('setter fired')
   }
 })
 
@@ -69,7 +68,6 @@ const terminalBlocks = computed<Option.Option<AWGConductor[]>>({
   get: () => Store.getTerminalBlocks(),
   set: (newBlocks) => {
     Store.setTerminalBlocks(newBlocks)
-    console.log('setter blatst')
   }
 })
 </script>
