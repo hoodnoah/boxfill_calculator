@@ -57,7 +57,7 @@ export interface BoxFillParameters {
   supportFittings?: Option.Option<NumSupportFittings>
   devices?: Option.Option<Devices>
   groundingConductors?: Option.Option<NumConductors>
-  terminalBlocks?: Option.Option<Conductors>
+  terminalBlocks?: Option.Option<AWGConductor[]>
   unitSystem: UnitSystem
 }
 
@@ -211,20 +211,26 @@ function getGroundingConductorFill(
   })
 }
 
+// Calculates a single terminal block's box fill, based on the
+// largest conductor terminated in the block
+function getTerminalBlockFill(terminalBlock: AWGConductor): Allowance {
+  return getAllowance(terminalBlock)
+}
+
 /**
  * Gets the terminal block fill based on the largest terminated conductor and the number of terminal blocks.
  * @param terminalBlockFill The largest terminated conductor and the number of terminal blocks.
  * @returns The allowance for terminal block fill
  */
-function getTerminalBlockFill(
-  terminalBlockFill: Option.Option<Conductors>
+function getTotalTerminalBlockFill(
+  terminalBlocks: Option.Option<AWGConductor[]>
 ): Option.Option<Allowance> {
-  return Option.map(terminalBlockFill, (terminalBlockFill) => {
-    const allowance = getAllowance(terminalBlockFill.largestAWG)
-    return {
-      unitSystem: allowance.unitSystem,
-      value: allowance.value * terminalBlockFill.num
-    }
+  return Option.map(terminalBlocks, (blocks) => {
+    return blocks
+      .map((x) => getTerminalBlockFill(x))
+      .reduce((acc, y) => {
+        return { ...acc, value: acc.value + y.value }
+      })
   })
 }
 
@@ -261,7 +267,7 @@ export function getBoxFill(boxFillArgs: BoxFillParameters): Result<BoxFill> {
     DEFAULT_ZERO_ALLOWANCE
   )
   const terminalBlockFill = Option.getOrDefault(
-    getTerminalBlockFill(terminalBlocks),
+    getTotalTerminalBlockFill(terminalBlocks),
     DEFAULT_ZERO_ALLOWANCE
   )
 

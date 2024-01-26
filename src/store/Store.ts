@@ -21,6 +21,7 @@ interface State {
   supportFittings: Option.Option<NumSupportFittings>
   devices: Option.Option<IDDevices>
   groundingConductors: Option.Option<NumConductors>
+  terminalBlocks: Option.Option<AWGConductor[]>
 }
 
 // Initialize state
@@ -31,7 +32,8 @@ const State = reactive<State>({
   internalClamps: Option.None(),
   supportFittings: Option.None(),
   devices: Option.None(),
-  groundingConductors: Option.None()
+  groundingConductors: Option.None(),
+  terminalBlocks: Option.None()
 })
 
 // Utility
@@ -49,7 +51,8 @@ function tryGetBoxFill(): ComputedRef<Result<BoxFill>> {
       internalClamps: State.internalClamps,
       supportFittings: State.supportFittings,
       devices: State.devices,
-      groundingConductors: State.groundingConductors
+      groundingConductors: State.groundingConductors,
+      terminalBlocks: State.terminalBlocks
     })
 
     return boxFillResult
@@ -84,6 +87,10 @@ function getGroundingConductors(): Option.Option<NumConductors> {
   return State.groundingConductors
 }
 
+function getTerminalBlocks(): Option.Option<AWGConductor[]> {
+  return State.terminalBlocks
+}
+
 // Setters
 function setUnitSystem(unitSystem: UnitSystem): void {
   State.unitSystem = unitSystem
@@ -115,6 +122,10 @@ function setDevices(devices: IDDevices): void {
 
 function setGroundingConductors(conductors: Option.Option<NumConductors>): void {
   State.groundingConductors = conductors
+}
+
+function setTerminalBlocks(terminalBlocks: Option.Option<AWGConductor[]>): void {
+  State.terminalBlocks = terminalBlocks
 }
 
 // Actions
@@ -159,6 +170,7 @@ export const Store = {
   getSupportFittings,
   getDevices,
   getGroundingConductors,
+  getTerminalBlocks,
   setUnitSystem,
   setLargestConductor,
   setGeneralConductors,
@@ -166,6 +178,7 @@ export const Store = {
   setSupportFittings,
   setDevices,
   setGroundingConductors,
+  setTerminalBlocks,
   addDevice,
   removeDevice
 }
