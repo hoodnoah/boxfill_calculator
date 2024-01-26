@@ -11,7 +11,7 @@ export type IDDevices = IDDevice[]
 import { type Result } from '@/lib/Result'
 import { Option } from '@/lib/Option'
 
-const DEFAULT_UNIT_SYSTEM = UnitSystem.Metric
+const DEFAULT_UNIT_SYSTEM = UnitSystem.Imperial
 
 interface State {
   unitSystem: UnitSystem
