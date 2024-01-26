@@ -25,5 +25,5 @@ function toggleClampsUsed() {
 </script>
 
 <template>
-  <button @click="toggleClampsUsed">{{ clampsUsedDisplayValue }}</button>
+  <button name="clampToggle" @click="toggleClampsUsed">{{ clampsUsedDisplayValue }}</button>
 </template>

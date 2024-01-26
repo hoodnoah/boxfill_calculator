@@ -79,29 +79,37 @@ const terminalBlocks = computed<Option.Option<AWGConductor[]>>({
 
   <main>
     <!-- Readout -->
-    <BoxFillDisplay v-model:unitSystemModel="unitSystem" :box-fill-result="boxFillResult" />
+    <BoxFillDisplay
+      id="box-fill-display"
+      v-model:unitSystemModel="unitSystem"
+      :box-fill-result="boxFillResult"
+    />
 
     <!-- Input -->
     <h2>largest conductor in box:</h2>
-    <AWGInput v-model="largestConductor" />
+    <AWGInput id="largest-conductor" v-model="largestConductor" />
 
     <h2>general conductors:</h2>
-    <ConductorInput v-model="generalConductors" />
+    <ConductorInput id="general-conductors" v-model="generalConductors" />
 
     <h2>internal clamps:</h2>
-    <ClampToggle v-model="internalClamps" />
+    <ClampToggle id="internal-clamps" v-model="internalClamps" />
 
     <h2>support fittings:</h2>
-    <SupportFittingsInput v-model="supportFittings" />
+    <SupportFittingsInput id="support-fittings" v-model="supportFittings" />
 
     <h2>devices:</h2>
-    <DevicesDisplay v-model="devices" :largestAWG="largestConductor" />
+    <DevicesDisplay id="devices" v-model="devices" :largestAWG="largestConductor" />
 
     <h2>grounding conductors:</h2>
-    <GroundingConductorInput v-model="groundingConductors" />
+    <GroundingConductorInput id="grounding-conductors" v-model="groundingConductors" />
 
     <h2>terminal blocks:</h2>
-    <TerminalBlockInput v-model="terminalBlocks" :largestAWG="largestConductor" />
+    <TerminalBlockInput
+      id="terminal-blocks"
+      v-model="terminalBlocks"
+      :largestAWG="largestConductor"
+    />
   </main>
 </template>
 

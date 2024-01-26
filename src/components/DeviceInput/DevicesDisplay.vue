@@ -77,7 +77,7 @@ function handleDelete(device: IDDevice): void {
 
 <template>
   <button name="addDevice" @click="addNewDevice">+ add new device</button>
-  <div v-if="displayDevices.length > 0">
+  <div class="devicesDisplay" v-if="displayDevices.length > 0">
     <div v-for="(displayDevice, index) in displayDevices" :key="displayDevice.id">
       <DeviceDisplay
         v-model="displayDevices[index]"

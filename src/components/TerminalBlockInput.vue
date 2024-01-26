@@ -26,7 +26,11 @@ function removeTerminalBlock(index: number): void {
 
 <template>
   <button name="addTerminalBlock" @click="addNewTerminalBlock">+ add terminal block</button>
-  <div v-for="(block, index) in Option.getOrDefault(terminalBlocksModel, [])" :key="index">
+  <div
+    class="terminalBlocksDisplay"
+    v-for="(block, index) in Option.getOrDefault(terminalBlocksModel, [])"
+    :key="index"
+  >
     {{ block + ' AWG' }}
     <button @click="removeTerminalBlock(index)">- remove terminal block</button>
   </div>

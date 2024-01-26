@@ -27,6 +27,5 @@ const displayValue = computed({
 </script>
 
 <template>
-  <label for="support-fittings">Number of support fittings</label>
   <input name="support-fittings" type="number" min="0" v-model="displayValue" />
 </template>
