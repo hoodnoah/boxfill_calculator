@@ -8,6 +8,7 @@ import {
   type NumConductors,
   type NumSupportFittings
 } from '@/lib/BoxFill'
+import type { IDDevices } from '@/store/Store'
 import { Option } from '@/lib/Option'
 
 import BoxFillDisplay from '@/components/BoxFillDisplay/BoxFillDisplay.vue'
@@ -15,6 +16,7 @@ import AWGInput from './components/AWGInput.vue'
 import ConductorInput from '@/components/ConductorInput.vue'
 import ClampToggle from '@/components/ClampToggle.vue'
 import SupportFittingsInput from './components/SupportFittingsInput.vue'
+import DevicesDisplay from './components/DeviceInput/DevicesDisplay.vue'
 
 // Computed property at the Store level
 const boxFillResult = Store.tryGetBoxFill()
@@ -44,6 +46,15 @@ const supportFittings = computed({
   set: (supportFittings: Option.Option<NumSupportFittings>) =>
     Store.setSupportFittings(supportFittings)
 })
+
+const devices = computed<Option.Option<IDDevices>>({
+  get: () => Store.getDevices(),
+  set: (devices) => {
+    const rawDevices = Option.getOrDefault(devices, [])
+    Store.setDevices(rawDevices)
+    console.log('setter fired')
+  }
+})
 </script>
 
 <template>
@@ -67,6 +78,9 @@ const supportFittings = computed({
 
     <h2>support fittings:</h2>
     <SupportFittingsInput v-model="supportFittings" />
+
+    <h2>devices:</h2>
+    <DevicesDisplay v-model="devices" :largestAWG="largestConductor" />
   </main>
 </template>
 

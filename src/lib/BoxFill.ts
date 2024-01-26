@@ -44,9 +44,7 @@ export interface Device {
   numGangs: number
 }
 
-export interface Devices {
-  devices: Device[]
-}
+export type Devices = Device[]
 
 export interface Conductors extends Conductor {
   num: number
@@ -57,7 +55,7 @@ export interface BoxFillParameters {
   generalConductors: NumConductors
   internalClamps?: Option.Option<null>
   supportFittings?: Option.Option<NumSupportFittings>
-  devicesUsed?: Option.Option<Devices>
+  devices?: Option.Option<Devices>
   groundingConductors?: Option.Option<Conductors>
   terminalBlocks?: Option.Option<Conductors>
   unitSystem: UnitSystem
@@ -174,7 +172,7 @@ function getDeviceFill(device: Device): Allowance {
  */
 function getDevicesFillTotal(devices: Option.Option<Devices>): Option.Option<Allowance> {
   return Option.map(devices, (devices) => {
-    const deviceAllowances = devices.devices.map(getDeviceFill)
+    const deviceAllowances = devices.map(getDeviceFill)
     const totalAllowance = deviceAllowances.reduce((acc, cur) => {
       return {
         unitSystem: acc.unitSystem,
@@ -237,7 +235,7 @@ export function getBoxFill(boxFillArgs: BoxFillParameters): Result<BoxFill> {
   const generalConductors = boxFillArgs.generalConductors
   const supportFittings = boxFillArgs.supportFittings ?? Option.None()
   const internalClamps = boxFillArgs.internalClamps ?? Option.None()
-  const devicesUsed = boxFillArgs.devicesUsed ?? Option.None()
+  const devicesUsed = boxFillArgs.devices ?? Option.None()
   const groundingConductors = boxFillArgs.groundingConductors ?? Option.None()
   const terminalBlocks = boxFillArgs.terminalBlocks ?? Option.None()
   const unitSystem = boxFillArgs.unitSystem

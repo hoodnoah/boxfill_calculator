@@ -14,7 +14,7 @@ function updateAWGModel() {
 </script>
 
 <template>
-  <select v-model="awgSelected" @change="updateAWGModel">
+  <select v-model="awgSelected" @change="updateAWGModel" name="awgInput">
     <option v-for="awg in awgOptions" :key="awg" :value="awg">{{ 'AWG ' + awg }}</option>
   </select>
 </template>

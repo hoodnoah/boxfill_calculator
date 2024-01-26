@@ -163,7 +163,7 @@ describe('CalculateBoxFill', () => {
         generalConductors: 3,
         internalClamps: Option.Some(null),
         supportFittings: Option.Some(1),
-        devicesUsed: Option.Some({ devices }),
+        devices: Option.Some({ devices }),
         unitSystem: UnitSystem.Metric
       })
     )

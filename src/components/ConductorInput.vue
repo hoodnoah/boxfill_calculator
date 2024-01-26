@@ -9,5 +9,5 @@ const numConductorsModel = defineModel({
 </script>
 
 <template>
-  <input type="number" min="0" v-model="numConductorsModel" />
+  <input name="conductorInput" type="number" min="0" v-model="numConductorsModel" />
 </template>

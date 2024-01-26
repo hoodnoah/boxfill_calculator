@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineModel, defineProps } from 'vue'
+import { computed, defineModel } from 'vue'
 
 import { type Result } from '@/lib/Result'
 import { UnitSystem, type BoxFill } from '@/lib/BoxFill'
