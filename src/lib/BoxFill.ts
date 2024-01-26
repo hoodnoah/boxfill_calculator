@@ -56,7 +56,7 @@ export interface BoxFillParameters {
   internalClamps?: Option.Option<null>
   supportFittings?: Option.Option<NumSupportFittings>
   devices?: Option.Option<Devices>
-  groundingConductors?: Option.Option<Conductors>
+  groundingConductors?: Option.Option<NumConductors>
   terminalBlocks?: Option.Option<Conductors>
   unitSystem: UnitSystem
 }
@@ -189,15 +189,20 @@ function getDevicesFillTotal(devices: Option.Option<Devices>): Option.Option<All
  * @returns The box fill for grounding conductors.
  */
 function getGroundingConductorFill(
-  groundingConductors: Option.Option<Conductors>
+  largestAWG: AWGConductor,
+  groundingConductors: Option.Option<NumConductors>
 ): Option.Option<Allowance> {
   return Option.map(groundingConductors, (groundingConductors) => {
-    const groundingAllowance = getAllowance(groundingConductors.largestAWG)
-    const numFullAllowances = Math.floor(groundingConductors.num / 4)
-    const numPartialAllowances = groundingConductors.num % 4
-    const totalAllowance =
-      numFullAllowances * groundingAllowance.value +
-      numPartialAllowances * 0.25 * groundingAllowance.value
+    const groundingAllowance = getAllowance(largestAWG)
+
+    // 4 are considered 1, each conductor over 4 add 1/4 allowance
+    if (groundingConductors <= 4) {
+      return groundingAllowance
+    }
+
+    const allowancesOverFour = groundingConductors - 4
+    const totalPartialAllowance = (allowancesOverFour / 4) * groundingAllowance.value
+    const totalAllowance = groundingAllowance.value + totalPartialAllowance
 
     return {
       unitSystem: groundingAllowance.unitSystem,
@@ -252,7 +257,7 @@ export function getBoxFill(boxFillArgs: BoxFillParameters): Result<BoxFill> {
   )
   const deviceFill = Option.getOrDefault(getDevicesFillTotal(devicesUsed), DEFAULT_ZERO_ALLOWANCE)
   const groundingConductorFill = Option.getOrDefault(
-    getGroundingConductorFill(groundingConductors),
+    getGroundingConductorFill(largestAWG, groundingConductors),
     DEFAULT_ZERO_ALLOWANCE
   )
   const terminalBlockFill = Option.getOrDefault(

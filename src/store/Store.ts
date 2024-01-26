@@ -1,5 +1,4 @@
 import { computed, reactive, type ComputedRef } from 'vue'
-// boxfill
 import { UnitSystem, AWGConductor, getBoxFill as calculateBoxFill } from '@/lib/BoxFill'
 import type { BoxFill, Device, NumConductors, NumSupportFittings } from '@/lib/BoxFill'
 
@@ -21,6 +20,7 @@ interface State {
   internalClamps: Option.Option<null>
   supportFittings: Option.Option<NumSupportFittings>
   devices: Option.Option<IDDevices>
+  groundingConductors: Option.Option<NumConductors>
 }
 
 // Initialize state
@@ -30,7 +30,8 @@ const State = reactive<State>({
   generalConductors: 0,
   internalClamps: Option.None(),
   supportFittings: Option.None(),
-  devices: Option.None()
+  devices: Option.None(),
+  groundingConductors: Option.None()
 })
 
 // Utility
@@ -47,7 +48,8 @@ function tryGetBoxFill(): ComputedRef<Result<BoxFill>> {
       unitSystem: State.unitSystem,
       internalClamps: State.internalClamps,
       supportFittings: State.supportFittings,
-      devices: State.devices
+      devices: State.devices,
+      groundingConductors: State.groundingConductors
     })
 
     return boxFillResult
@@ -78,6 +80,10 @@ function getDevices(): Option.Option<IDDevices> {
   return State.devices
 }
 
+function getGroundingConductors(): Option.Option<NumConductors> {
+  return State.groundingConductors
+}
+
 // Setters
 function setUnitSystem(unitSystem: UnitSystem): void {
   State.unitSystem = unitSystem
@@ -105,6 +111,10 @@ function setDevices(devices: IDDevices): void {
   } else {
     State.devices = Option.Some(sortDevices(devices))
   }
+}
+
+function setGroundingConductors(conductors: Option.Option<NumConductors>): void {
+  State.groundingConductors = conductors
 }
 
 // Actions
@@ -148,12 +158,14 @@ export const Store = {
   getInternalClamps,
   getSupportFittings,
   getDevices,
+  getGroundingConductors,
   setUnitSystem,
   setLargestConductor,
   setGeneralConductors,
   setInternalClamps,
   setSupportFittings,
   setDevices,
+  setGroundingConductors,
   addDevice,
   removeDevice
 }

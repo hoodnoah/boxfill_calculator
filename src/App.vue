@@ -17,6 +17,7 @@ import ConductorInput from '@/components/ConductorInput.vue'
 import ClampToggle from '@/components/ClampToggle.vue'
 import SupportFittingsInput from './components/SupportFittingsInput.vue'
 import DevicesDisplay from './components/DeviceInput/DevicesDisplay.vue'
+import GroundingConductorInput from './components/DeviceInput/GroundingConductorInput.vue'
 
 // Computed property at the Store level
 const boxFillResult = Store.tryGetBoxFill()
@@ -55,6 +56,13 @@ const devices = computed<Option.Option<IDDevices>>({
     console.log('setter fired')
   }
 })
+
+const groundingConductors = computed<Option.Option<NumConductors>>({
+  get: () => Store.getGroundingConductors(),
+  set: (conductors) => {
+    Store.setGroundingConductors(conductors)
+  }
+})
 </script>
 
 <template>
@@ -81,6 +89,9 @@ const devices = computed<Option.Option<IDDevices>>({
 
     <h2>devices:</h2>
     <DevicesDisplay v-model="devices" :largestAWG="largestConductor" />
+
+    <h2>grounding conductors:</h2>
+    <GroundingConductorInput v-model="groundingConductors" />
   </main>
 </template>
 
