@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { Option } from '@/lib/Option'
 import { AWGConductor } from '@/lib/BoxFill'
+import AWGInput from '@/components/AWGInput.vue'
 
+// Used for defaults
 const props = defineProps<{ largestAWG: AWGConductor }>()
+
 const terminalBlocksModel = defineModel<Option.Option<AWGConductor[]>>({ required: true })
 const emit = defineEmits(['update:modelValue'])
 
@@ -31,7 +34,7 @@ function removeTerminalBlock(index: number): void {
     v-for="(block, index) in Option.getOrDefault(terminalBlocksModel, [])"
     :key="index"
   >
-    {{ block + ' AWG' }}
+    <AWGInput v-model="Option.getOrDefault(terminalBlocksModel, [])[index]" />
     <button @click="removeTerminalBlock(index)">- remove terminal block</button>
   </div>
 </template>
