@@ -33,9 +33,10 @@ const largestConductor = computed({
   set: (largestConductor: AWGConductor) => Store.setLargestConductor(largestConductor)
 })
 
-const generalConductors = computed<NumConductors>({
+const generalConductors = computed<Option.Option<NumConductors>>({
   get: () => Store.getGeneralConductors(),
-  set: (generalConductors: NumConductors) => Store.setGeneralConductors(generalConductors)
+  set: (generalConductors: Option.Option<NumConductors>) =>
+    Store.setGeneralConductors(generalConductors)
 })
 
 const internalClamps = computed({

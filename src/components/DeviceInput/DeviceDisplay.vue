@@ -8,19 +8,22 @@ const emit = defineEmits(['deleteDevice', 'updateDevice'])
 const deviceModel = defineModel<IDDevice>({ required: true })
 
 function handleUpdate(key: keyof IDDevice, value: AWGConductor) {
-  deviceModel.value[key] = value
-  emit('updateDevice', deviceModel)
+  emit('updateDevice', { ...deviceModel.value, [key]: value })
 }
 </script>
 
 <template>
-  <AWGInput v-model="deviceModel.largestAWG" />
-  <input
-    type="number"
-    min="1"
-    name="numGangInput"
-    v-model="deviceModel.numGangs"
-    @update:modelValue="handleUpdate('largestAWG', $event)"
-  />
-  <button name="deleteButton" @click="$emit('deleteDevice', deviceModel)">- delete device</button>
+  <div>
+    <AWGInput v-model="deviceModel.largestAWG" />
+    <input
+      type="number"
+      min="1"
+      name="numGangInput"
+      v-model="deviceModel.numGangs"
+      @update:modelValue="handleUpdate('largestAWG', $event)"
+    />
+    <button name="deleteButton" @click="$emit('deleteDevice', deviceModel.id)">
+      - delete device
+    </button>
+  </div>
 </template>
