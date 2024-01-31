@@ -21,16 +21,16 @@ describe('defaults', () => {
     cy.get('#internal-clamps').contains('no')
   })
 
-  it('defaults to 0 support fittings', () => {
-    cy.get('#support-fittings').should('have.value', '0')
+  it('defaults to no support fittings', () => {
+    cy.get('#support-fittings').should('have.value', '')
   })
 
   it('starts with no devices', () => {
-    cy.get('#devices').should('not.exist')
+    cy.get('.devicesDisplay').should('not.exist')
   })
 
-  it('defaults to 0 grounding conductors', () => {
-    cy.get('#grounding-conductors').should('have.value', '0')
+  it('defaults to no grounding conductors', () => {
+    cy.get('#grounding-conductors').should('have.value', '')
   })
 
   it('starts with no terminal blocks', () => {
