@@ -35,6 +35,8 @@ function removeTerminalBlock(index: number): void {
     :key="index"
   >
     <AWGInput v-model="Option.getOrDefault(terminalBlocksModel, [])[index]" />
-    <button @click="removeTerminalBlock(index)">- remove terminal block</button>
+    <button name="deleteTerminalBlock" @click="removeTerminalBlock(index)">
+      - remove terminal block
+    </button>
   </div>
 </template>

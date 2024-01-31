@@ -47,7 +47,6 @@ describe('deviceInput, imperial', () => {
     })
 
     // Delete devices 2 and 4
-    cy.get('.devicesDisplay > div').debug()
     cy.get('.devicesDisplay > div').eq(1).find('[name="deleteButton"]').click()
     cy.get('.devicesDisplay > div').eq(2).find('[name="deleteButton"]').click()
 
@@ -59,5 +58,18 @@ describe('deviceInput, imperial', () => {
       ) * 2
 
     cy.get('#box-fill-display').children().contains(expectedAllowance.toFixed(1))
+  })
+
+  it('should allow the deletion of *all* devices', () => {
+    for (let i = 0; i < 5; i++) {
+      cy.get('[name="addDevice"]').click()
+    }
+
+    cy.get('.devicesDisplay > div').each(($div) => {
+      cy.wrap($div).children().find('[name="deleteButton"]').click()
+    })
+
+    cy.get('div.devicesDisplay').should('not.exist')
+    cy.get('#box-fill-display').contains('0.0')
   })
 })

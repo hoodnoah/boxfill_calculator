@@ -52,7 +52,7 @@ export interface Conductors extends Conductor {
 
 export interface BoxFillParameters {
   largestConductor: AWGConductor
-  generalConductors: NumConductors
+  generalConductors: Option.Option<NumConductors>
   internalClamps?: Option.Option<null>
   supportFittings?: Option.Option<NumSupportFittings>
   devices?: Option.Option<Devices>
@@ -104,12 +104,17 @@ function switchUnitSystem(allowance: Allowance): Allowance {
  * @param numConductors The number of conductors in the box (does not include grounds)
  * @returns The conductor fill in cubic centimeters.
  */
-function getConductorFill(largestAWG: AWGConductor, generalConductors: NumConductors): Allowance {
+function getConductorFill(
+  largestAWG: AWGConductor,
+  generalConductors: Option.Option<NumConductors>
+): Option.Option<Allowance> {
   const allowance = getAllowance(largestAWG)
-  return {
-    unitSystem: allowance.unitSystem,
-    value: allowance.value * generalConductors
-  }
+  return Option.map(generalConductors, (numConductors) => {
+    return {
+      unitSystem: allowance.unitSystem,
+      value: numConductors * allowance.value
+    }
+  })
 }
 
 /**
@@ -243,7 +248,7 @@ function getTotalTerminalBlockFill(
 export function getBoxFill(boxFillArgs: BoxFillParameters): Result<BoxFill> {
   // Null-coalesce the optional parameters into Option.None
   const largestAWG = boxFillArgs.largestConductor
-  const generalConductors = boxFillArgs.generalConductors
+  const generalConductors = boxFillArgs.generalConductors ?? Option.None()
   const supportFittings = boxFillArgs.supportFittings ?? Option.None()
   const internalClamps = boxFillArgs.internalClamps ?? Option.None()
   const devicesUsed = boxFillArgs.devices ?? Option.None()
@@ -252,7 +257,10 @@ export function getBoxFill(boxFillArgs: BoxFillParameters): Result<BoxFill> {
   const unitSystem = boxFillArgs.unitSystem
 
   // Calculate intermediate fill values, default to 0 if None
-  const conductorFill = getConductorFill(largestAWG, generalConductors)
+  const conductorFill = Option.getOrDefault(
+    getConductorFill(largestAWG, generalConductors),
+    DEFAULT_ZERO_ALLOWANCE
+  )
   const clampFill = Option.getOrDefault(
     getClampFill(largestAWG, internalClamps),
     DEFAULT_ZERO_ALLOWANCE

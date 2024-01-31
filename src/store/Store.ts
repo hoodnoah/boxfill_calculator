@@ -16,7 +16,7 @@ const DEFAULT_UNIT_SYSTEM = UnitSystem.Imperial
 interface State {
   unitSystem: UnitSystem
   largestConductor: AWGConductor
-  generalConductors: NumConductors
+  generalConductors: Option.Option<NumConductors>
   internalClamps: Option.Option<null>
   supportFittings: Option.Option<NumSupportFittings>
   devices: Option.Option<IDDevices>
@@ -28,7 +28,7 @@ interface State {
 const State = reactive<State>({
   unitSystem: DEFAULT_UNIT_SYSTEM,
   largestConductor: AWGConductor.AWG_12,
-  generalConductors: 0,
+  generalConductors: Option.None(),
   internalClamps: Option.None(),
   supportFittings: Option.None(),
   devices: Option.None(),
@@ -67,7 +67,7 @@ function getLargestConductor(): AWGConductor {
   return State.largestConductor
 }
 
-function getGeneralConductors(): NumConductors {
+function getGeneralConductors(): Option.Option<NumConductors> {
   return State.generalConductors
 }
 
@@ -100,7 +100,7 @@ function setLargestConductor(newAWG: AWGConductor): void {
   State.largestConductor = newAWG
 }
 
-function setGeneralConductors(generalConductors: NumConductors): void {
+function setGeneralConductors(generalConductors: Option.Option<NumConductors>): void {
   State.generalConductors = generalConductors
 }
 

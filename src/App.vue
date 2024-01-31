@@ -17,7 +17,6 @@ import ConductorInput from '@/components/ConductorInput.vue'
 import ClampToggle from '@/components/ClampToggle.vue'
 import SupportFittingsInput from './components/SupportFittingsInput.vue'
 import DevicesDisplay from './components/DeviceInput/DevicesDisplay.vue'
-import GroundingConductorInput from './components/DeviceInput/GroundingConductorInput.vue'
 import TerminalBlockInput from './components/TerminalBlockInput.vue'
 
 // Computed property at the Store level
@@ -103,7 +102,7 @@ const terminalBlocks = computed<Option.Option<AWGConductor[]>>({
     <DevicesDisplay id="devices" v-model="devices" :largestAWG="largestConductor" />
 
     <h2>grounding conductors:</h2>
-    <GroundingConductorInput id="grounding-conductors" v-model="groundingConductors" />
+    <ConductorInput id="grounding-conductors" v-model="groundingConductors" />
 
     <h2>terminal blocks:</h2>
     <TerminalBlockInput

@@ -13,8 +13,8 @@ describe('defaults', () => {
     cy.get('#largest-conductor').children().contains('12')
   })
 
-  it('defaults to 0 general conductors', () => {
-    cy.get('#general-conductors').should('have.value', '0')
+  it('defaults general conductors to empty', () => {
+    cy.get('#general-conductors').should('have.value', '')
   })
 
   it('defaults to no internal clamps', () => {
