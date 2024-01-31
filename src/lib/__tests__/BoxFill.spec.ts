@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 
 import { AWGConductor, UnitSystem, getBoxFill } from '../BoxFill'
-import type { BoxFill, Device } from '../BoxFill'
+import type { BoxFill, Device, Devices } from '../BoxFill'
 import { unwrapOrThrow } from '../Result'
 import { Option } from '../Option'
 
@@ -14,14 +14,14 @@ describe('CalculateBoxFill', () => {
     const boxFill_pass: BoxFill = unwrapOrThrow(
       getBoxFill({
         largestConductor,
-        generalConductors: numConductors_pass,
+        generalConductors: Option.Some(numConductors_pass),
         unitSystem: UnitSystem.Metric
       })
     )
     const boxFill_fail: BoxFill = unwrapOrThrow(
       getBoxFill({
         largestConductor,
-        generalConductors: numConductors_fail,
+        generalConductors: Option.Some(numConductors_fail),
         unitSystem: UnitSystem.Metric
       })
     )
@@ -38,14 +38,14 @@ describe('CalculateBoxFill', () => {
     const boxFill_pass: BoxFill = unwrapOrThrow(
       getBoxFill({
         largestConductor: largestConductor,
-        generalConductors: numConductors_pass,
+        generalConductors: Option.Some(numConductors_pass),
         unitSystem: UnitSystem.Metric
       })
     )
     const boxFill_fail: BoxFill = unwrapOrThrow(
       getBoxFill({
         largestConductor,
-        generalConductors: numConductors_fail,
+        generalConductors: Option.Some(numConductors_fail),
         unitSystem: UnitSystem.Metric
       })
     )
@@ -60,7 +60,7 @@ describe('CalculateBoxFill', () => {
     const actualResult = unwrapOrThrow(
       getBoxFill({
         largestConductor,
-        generalConductors: 4,
+        generalConductors: Option.Some(4),
         unitSystem: UnitSystem.Metric
       })
     )
@@ -77,7 +77,7 @@ describe('CalculateBoxFill', () => {
     const actualResult = unwrapOrThrow(
       getBoxFill({
         largestConductor,
-        generalConductors: 2,
+        generalConductors: Option.Some(2),
         internalClamps: Option.Some(null),
         unitSystem: UnitSystem.Metric
       })
@@ -92,7 +92,7 @@ describe('CalculateBoxFill', () => {
     const actualResult = unwrapOrThrow(
       getBoxFill({
         largestConductor: largestConductor,
-        generalConductors: 2,
+        generalConductors: Option.Some(2),
         internalClamps: Option.Some(null),
         unitSystem: UnitSystem.Imperial
       })
@@ -112,7 +112,7 @@ describe('CalculateBoxFill', () => {
     const actualResult = unwrapOrThrow(
       getBoxFill({
         largestConductor,
-        generalConductors: 14,
+        generalConductors: Option.Some(14),
         supportFittings: Option.Some(3),
         unitSystem: UnitSystem.Metric
       })
@@ -132,7 +132,7 @@ describe('CalculateBoxFill', () => {
     const actualResult = unwrapOrThrow(
       getBoxFill({
         largestConductor,
-        generalConductors: 14,
+        generalConductors: Option.Some(14),
         supportFittings: Option.Some(3),
         unitSystem: UnitSystem.Imperial
       })
@@ -144,7 +144,7 @@ describe('CalculateBoxFill', () => {
   it('calculates a box fill correctly for 3x 12AWG conductors, internal clamps, 1 support fitting, one one-gang device and one two-gang device', () => {
     const largestConductor = AWGConductor.AWG_12
     const allowance = 36.9
-    const devices: Device[] = [
+    const devices: Devices = [
       { largestAWG: largestConductor, numGangs: 1 },
       { largestAWG: largestConductor, numGangs: 2 }
     ]
@@ -160,10 +160,10 @@ describe('CalculateBoxFill', () => {
     const actualResult = unwrapOrThrow(
       getBoxFill({
         largestConductor,
-        generalConductors: 3,
+        generalConductors: Option.Some(3),
         internalClamps: Option.Some(null),
         supportFittings: Option.Some(1),
-        devices: Option.Some({ devices }),
+        devices: Option.Some(devices),
         unitSystem: UnitSystem.Metric
       })
     )
@@ -172,22 +172,20 @@ describe('CalculateBoxFill', () => {
   })
 
   it('calculates a box fill correctly for 3x 12AWG conductors and 9x AWG 6 grounding conductors', () => {
-    const largestConductor = AWGConductor.AWG_12
-    const allowance = 36.9
-    const groundingAllowance = 81.9
+    const largestConductor = AWGConductor.AWG_6
+    const allowance = 81.9
 
     const expectedResult = {
       unitSystem: UnitSystem.Metric,
-      value:
-        Math.round((allowance * 3 + groundingAllowance * 2 + groundingAllowance * 0.25) * 10) / 10
+      value: Math.round((allowance * 3 + allowance * 2 + allowance * 0.25) * 10) / 10
     }
 
     const actualResult = unwrapOrThrow(
       getBoxFill({
         largestConductor,
-        generalConductors: 3,
+        generalConductors: Option.Some(3),
         unitSystem: UnitSystem.Metric,
-        groundingConductors: Option.Some({ largestAWG: AWGConductor.AWG_6, num: 9 })
+        groundingConductors: Option.Some(9)
       })
     )
 
@@ -207,9 +205,9 @@ describe('CalculateBoxFill', () => {
     const actualResult = unwrapOrThrow(
       getBoxFill({
         largestConductor,
-        generalConductors: 1,
+        generalConductors: Option.Some(1),
         unitSystem: UnitSystem.Metric,
-        terminalBlocks: Option.Some({ largestAWG: AWGConductor.AWG_14, num: 2 })
+        terminalBlocks: Option.Some([AWGConductor.AWG_14, AWGConductor.AWG_14])
       })
     )
 

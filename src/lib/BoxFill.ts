@@ -205,9 +205,12 @@ function getGroundingConductorFill(
       return groundingAllowance
     }
 
-    const allowancesOverFour = groundingConductors - 4
-    const totalPartialAllowance = (allowancesOverFour / 4) * groundingAllowance.value
-    const totalAllowance = groundingAllowance.value + totalPartialAllowance
+    const numFullAllowances = Math.floor(groundingConductors / 4)
+    const numPartialAllowances = groundingConductors % 4
+
+    const totalAllowance =
+      numFullAllowances * groundingAllowance.value +
+      numPartialAllowances * (groundingAllowance.value / 4)
 
     return {
       unitSystem: groundingAllowance.unitSystem,
