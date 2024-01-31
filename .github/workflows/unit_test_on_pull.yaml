@@ -1,0 +1,21 @@
+name: Run Unit Tests on Pull Request
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches: [main, develop]
+
+jobs:
+  satisfy_lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '21.x.x'
+      - name: install dependencies
+        run: npm install
+      - name: run linting
+        run: npm run lint
+      - name: run unit tests
+        run: npm run test:unit
