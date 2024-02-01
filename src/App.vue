@@ -74,17 +74,15 @@ const terminalBlocks = computed<Option.Option<AWGConductor[]>>({
 
 <template>
   <header>
-    <div class="wrapper"></div>
-  </header>
-
-  <main>
     <!-- Readout -->
     <BoxFillDisplay
       id="box-fill-display"
       v-model:unitSystemModel="unitSystem"
       :box-fill-result="boxFillResult"
     />
+  </header>
 
+  <main>
     <!-- Input -->
     <h2>largest conductor in box:</h2>
     <AWGInput id="largest-conductor" v-model="largestConductor" />
@@ -115,29 +113,6 @@ const terminalBlocks = computed<Option.Option<AWGConductor[]>>({
 
 <style scoped>
 header {
-  line-height: 1.5;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
+  min-width: 30vw;
 }
 </style>
