@@ -1,0 +1,24 @@
+name: E2E on Chrome
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches: [main, develop]
+
+jobs:
+  run_e2e_against_dev:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        browsers: ['edge', 'chrome', 'firefox']
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install dependencies
+        run: npm install
+
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
+          browser: ${{ matrix.browsers }}
+          start: npx vite dev --port 4173
