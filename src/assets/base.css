@@ -10,6 +10,10 @@
     --black-soft: #222222;
     --black-mute: #282828;
 
+    --gray: #b3b3b3;
+    --gray-soft: #c4c4c4;
+    --gray-mute: #e6e6e6;
+
     --indigo: #2c3e50;
 
     --divider-light-1: rgba(60, 60, 60, 0.29);
@@ -21,6 +25,19 @@
     --text-light-2: rgba(60, 60, 60, 0.66);
     --text-dark-1: var(--vt-c-white);
     --text-dark-2: rgba(235, 235, 235, 0.64);
+
+    --soft-box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.12),
+        2px 2px 2px rgba(0, 0, 0, 0.12),
+        4px 4px 4px rgba(0, 0, 0, 0.12),
+        8px 8px 8px rgba(0, 0, 0, 0.12),
+        16px 16px 16px rgba(0, 0, 0, 0.12);
+
+    --soft-box-shadow-hover: 1px 1px 1px rgba(0, 0, 0, 0.24),
+        2px 2px 2px rgba(0, 0, 0, 0.24),
+        4px 4px 4px rgba(0, 0, 0, 0.24),
+        8px 8px 8px rgba(0, 0, 0, 0.24),
+        16px 16px 16px rgba(0, 0, 0, 0.24);
+
 }
 
 /* semantic color variables for this project */
@@ -28,6 +45,9 @@
     --color-background: var(--white);
     --color-background-soft: var(--white-soft);
     --color-background-mute: var(--white-mute);
+
+    --color-button-background: var(--gray-mute);
+    --color-button-hover: var(--gray);
 
     --color-border: var(--divider-light-2);
     --color-border-hover: var(--divider-light-1);

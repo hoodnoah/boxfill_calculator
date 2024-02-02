@@ -29,7 +29,7 @@ const boxFillDisplayValue = computed<string>(() => {
 
 <template>
     <div class="box-fill-display">
-        <span class="digit-readout">{{ boxFillDisplayValue }}</span>
+        <div class="digit-readout">{{ boxFillDisplayValue }}</div>
         <UnitSystemToggle v-model:unit-system-model="unitSystemModel" />
     </div>
 </template>
@@ -48,5 +48,10 @@ const boxFillDisplayValue = computed<string>(() => {
 .digit-readout {
     font-family: 'Rubik Mono', monospace;
     font-size: 7em;
+    border: 1px solid var(--color-border);
+    border-radius: 15px;
+    padding-right: 1rem;
+    width: 100%;
+    text-align: right;
 }
 </style>

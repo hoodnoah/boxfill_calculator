@@ -33,34 +33,5 @@ function toggleUnitSystemValue() {
 </template>
 
 <style scoped>
-/* global style */
 @import url('@/assets/main.css');
-
-/* font import */
-@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@500&display=swap');
-
-button {
-    /* font */
-    font-family: 'Rubik', monospace;
-    font-size: 1rem;
-
-    /* box */
-    border: none;
-    padding: .5em;
-    border-radius: 10px;
-    box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.12),
-        2px 2px 2px rgba(0, 0, 0, 0.12),
-        4px 4px 4px rgba(0, 0, 0, 0.12),
-        8px 8px 8px rgba(0, 0, 0, 0.12),
-        16px 16px 16px rgba(0, 0, 0, 0.12);
-
-    /* interactivity */
-    cursor: pointer;
-}
-
-@media (hover: hover) {
-    button:hover {
-        background-color: var(--color-border-hover);
-    }
-}
 </style>

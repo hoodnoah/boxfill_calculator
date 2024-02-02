@@ -80,7 +80,6 @@ const terminalBlocks = computed<Option.Option<AWGConductor[]>>({
 
     <main>
         <!-- Input -->
-        <h2>largest conductor in box:</h2>
         <AWGInput id="largest-conductor" v-model="largestConductor" />
 
         <h2>general conductors:</h2>
@@ -116,6 +115,7 @@ main {
 
     /* flex */
     display: flex;
+    gap: 1rem;
     flex-flow: column nowrap;
 }
 </style>

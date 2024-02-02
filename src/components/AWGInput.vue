@@ -9,12 +9,15 @@ const awgSelected = defineModel({ type: Number as () => AWGConductor, required: 
 const awgOptions = Object.values(AWGConductor).filter((x) => !isNaN(Number(x)))
 
 function updateAWGModel() {
-  emit('update:modelValue', awgSelected.value)
+    emit('update:modelValue', awgSelected.value)
 }
 </script>
 
 <template>
-  <select v-model="awgSelected" @input="updateAWGModel" name="awgInput">
-    <option v-for="awg in awgOptions" :key="awg" :value="awg">{{ 'AWG ' + awg }}</option>
-  </select>
+    <div>
+        <h2>largest conductor in box:</h2>
+        <select v-model="awgSelected" @input="updateAWGModel" name="awgInput">
+            <option v-for="awg in awgOptions" :key="awg" :value="awg">{{ 'AWG ' + awg }}</option>
+        </select>
+    </div>
 </template>
