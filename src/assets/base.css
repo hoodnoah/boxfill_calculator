@@ -14,6 +14,9 @@
     --gray-soft: #c4c4c4;
     --gray-mute: #e6e6e6;
 
+    --green: rgba(4, 179, 9, .6);
+    --red: rgba(179, 21, 4, .6);
+
     --indigo: #2c3e50;
 
     --divider-light-1: rgba(60, 60, 60, 0.29);
@@ -54,6 +57,9 @@
 
     --color-heading: var(--text-light-1);
     --color-text: var(--text-light-1);
+
+    --color-button-green: var(--green);
+    --color-button-red: var(--red);
 
     --section-gap: 160px;
 }

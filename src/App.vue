@@ -80,7 +80,7 @@ const terminalBlocks = computed<Option.Option<AWGConductor[]>>({
 
     <main>
         <!-- Input -->
-        <AWGInput id="largest-conductor" v-model="largestConductor" />
+        <AWGInput header="largest conductor in box:" id="largest-conductor" v-model="largestConductor" />
 
         <h2>general conductors:</h2>
         <ConductorInput id="general-conductors" v-model="generalConductors" />
@@ -91,14 +91,13 @@ const terminalBlocks = computed<Option.Option<AWGConductor[]>>({
         <h2>support fittings:</h2>
         <SupportFittingsInput id="support-fittings" v-model="supportFittings" />
 
-        <h2>devices:</h2>
-        <DevicesDisplay id="devices" v-model="devices" :largestAWG="largestConductor" />
+        <DevicesDisplay header="devices:" id="devices" v-model="devices" :largestAWG="largestConductor" />
 
         <h2>grounding conductors:</h2>
         <ConductorInput id="grounding-conductors" v-model="groundingConductors" />
 
-        <h2>terminal blocks:</h2>
-        <TerminalBlockInput id="terminal-blocks" v-model="terminalBlocks" :largestAWG="largestConductor" />
+        <TerminalBlockInput header="terminal blocks:" id="terminal-blocks" v-model="terminalBlocks"
+            :largestAWG="largestConductor" />
     </main>
 </template>
 
