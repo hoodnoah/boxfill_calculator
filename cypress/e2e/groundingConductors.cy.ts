@@ -8,8 +8,8 @@ describe('groundingConductorsInput', () => {
   })
 
   it('should add a single allowance based on the largest AWG present', () => {
-    cy.get('#largest-conductor').each(($element, index) => {
-      cy.wrap($element).select(index)
+    cy.get('[name="awgInput"]').each(($select, index) => {
+      cy.wrap($select).select(index)
 
       cy.get('#grounding-conductors').type('1')
 

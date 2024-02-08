@@ -24,10 +24,10 @@ describe('deviceInput, imperial', () => {
     cy.get('[name="addDevice"]').click()
 
     // Check every device AWG option
-    cy.get('.devicesDisplay')
+    cy.get('.devices-display')
       .find('select option')
       .each(($_element, index) => {
-        cy.get('.devicesDisplay').find('select').select(index)
+        cy.get('.devices-display').find('select').select(index)
 
         cy.get('#box-fill-display')
           .children()
@@ -42,13 +42,13 @@ describe('deviceInput, imperial', () => {
     }
 
     // Set each device to a different AWG, based on its index
-    cy.get('.devicesDisplay > div').each(($div, index) => {
+    cy.get('.devices-display > div').each(($div, index) => {
       cy.wrap($div).find('[name="awgInput"]').select(index)
     })
 
     // Delete devices 2 and 4
-    cy.get('.devicesDisplay > div').eq(1).find('[name="deleteButton"]').click()
-    cy.get('.devicesDisplay > div').eq(2).find('[name="deleteButton"]').click()
+    cy.get('.devices-display > div').eq(1).find('[name="deleteButton"]').click()
+    cy.get('.devices-display > div').eq(2).find('[name="deleteButton"]').click()
 
     // Should have the allowance for AWG 18, 14, and 10
     const expectedAllowance =
@@ -65,11 +65,11 @@ describe('deviceInput, imperial', () => {
       cy.get('[name="addDevice"]').click()
     }
 
-    cy.get('.devicesDisplay > div').each(($div) => {
+    cy.get('.devices-display > div').each(($div) => {
       cy.wrap($div).children().find('[name="deleteButton"]').click()
     })
 
-    cy.get('div.devicesDisplay').should('not.exist')
+    cy.get('div.devices-display').should('not.exist')
     cy.get('#box-fill-display').contains('0.0')
   })
 })
