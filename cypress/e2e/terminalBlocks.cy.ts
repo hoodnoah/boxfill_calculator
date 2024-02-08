@@ -4,8 +4,8 @@ describe('terminalBlocks', () => {
   beforeEach(() => cy.visit('/'))
 
   it('should add a terminal block with the selected largest AWG, for each possible AWG', () => {
-    cy.get('#largest-conductor option').each(($option, index) => {
-      cy.get('#largest-conductor').select(index)
+    cy.get('#largest-conductor>select').each(($option, index) => {
+      cy.get('#largest-conductor>select').select(index)
 
       cy.get('[name="addTerminalBlock"]').click()
 
@@ -22,8 +22,8 @@ describe('terminalBlocks', () => {
   it('should allow changing the AWG for each possible option', () => {
     cy.get('[name="addTerminalBlock"]').click()
 
-    cy.get('.terminalBlocksDisplay > select option').each(($option, index) => {
-      cy.get('.terminalBlocksDisplay > select').select(index)
+    cy.get(':nth-child(1) > .awg-input-wrapper > select > option').each(($option, index) => {
+      cy.get(':nth-child(1) > .awg-input-wrapper > select').select(index)
 
       cy.get('#box-fill-display').contains(ALLOWANCES_IMPERIAL[index].toFixed(1))
     })
@@ -36,8 +36,8 @@ describe('terminalBlocks', () => {
     }
 
     // Set each block's AWG to its index
-    cy.get('.terminalBlocksDisplay > select').each(($select, index) => {
-      cy.wrap($select).select(index)
+    cy.get('.terminal-blocks-list .awg-input-wrapper select').each((elem, index) => {
+      cy.wrap(elem).select(index)
     })
 
     // Delete blocks 2 and 4
