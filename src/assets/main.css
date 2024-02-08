@@ -1,35 +1,127 @@
 @import './base.css';
 
+/* font import */
+@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@500&display=swap');
+
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
+    max-width: 450px;
+    margin: 0 auto;
+    padding: 2rem;
+    font-weight: normal;
 }
 
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
+button {
+    /* font */
+    font-family: 'Rubik', monospace;
+    font-size: 1rem;
+
+    /* box */
+    border: none;
+    padding: .75em;
+    border-radius: 10px;
+    background-color: var(--color-button-background);
+    box-shadow: var(--soft-box-shadow);
+
+    /* interactivity */
+    cursor: pointer;
 }
 
 @media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
+    button:hover {
+        background-color: var(--color-button-hover);
+        scale: 110%;
+        box-shadow: var(--soft-box-shadow-hover);
+    }
 }
 
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
+select {
+    /* reset */
+    appearance: none;
+    border: 0;
+    outline: 0;
+    font: inherit;
 
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
+    /* customize */
+    width: 100%;
+    min-width: 7rem;
+    padding: .5rem;
+    /* margin-top: 1rem;
+    margin-bottom: 1rem; */
+    box-shadow: var(--soft-box-shadow);
+    border: 1px solid var(--color-border);
+    align-self: center;
+    border-radius: 5px;
+
+    /* arrow */
+    background-image:
+        linear-gradient(45deg, transparent 50%, gray 50%),
+        linear-gradient(135deg, gray 50%, transparent 50%),
+        linear-gradient(to right, #ccc, #ccc);
+    background-position:
+        calc(100% - 20px) calc(1em + 2px),
+        calc(100% - 15px) calc(1em + 2px),
+        calc(100% - 2.5em) 0.5em;
+    background-size:
+        5px 5px,
+        5px 5px,
+        1px 1.5em;
+    background-repeat: no-repeat;
+
+    /* Remove IE arrow */
+    &::-ms-expand {
+        display: none;
+    }
+
+    /* Remove focus outline */
+    &:focus {
+        outline: none;
+    }
+
+}
+
+/* <option> colors */
+option {
+    color: inherit;
+    background-color: var(--option-bg);
+}
+
+/* flip arrow when focused */
+select:focus {
+    background-image:
+        linear-gradient(45deg, green 50%, transparent 50%),
+        linear-gradient(135deg, transparent 50%, green 50%),
+        linear-gradient(to right, #ccc, #ccc);
+    background-position:
+        calc(100% - 15px) 1em,
+        calc(100% - 20px) 1em,
+        calc(100% - 2.5em) 0.5em;
+    background-size:
+        5px 5px,
+        5px 5px,
+        1px 1.5em;
+    background-repeat: no-repeat;
+    border-color: green;
+    outline: 0;
+}
+
+
+@media (hover:hover) {
+    select:hover {
+        border: 1px solid var(--color-border-hover);
+        scale: 105%;
+    }
+}
+
+h2 {
+    font-size: 1.5rem;
+    margin: 0;
+    padding: 0;
+}
+
+input {
+    border: 1px solid var(--color-border);
+    border-radius: 5px;
+    padding: .5rem;
+    box-shadow: var(--soft-box-shadow);
+    font-family: 'Rubik Mono' monospace;
 }

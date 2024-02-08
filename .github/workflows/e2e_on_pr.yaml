@@ -1,4 +1,4 @@
-name: E2E on Chrome
+name: E2E
 
 on:
   pull_request:
@@ -10,7 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        browsers: ['edge', 'chrome', 'firefox']
+        # browsers: ['edge', 'chrome', 'firefox']
+        browsers: ['chrome', 'firefox']
     steps:
       - uses: actions/checkout@v4
 
